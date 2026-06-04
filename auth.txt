@@ -1,0 +1,32 @@
+Frontend:
+frontend, react + zod + axios + reactrouter 
+backend apis(for now), 
+  http://localhost:3000/api/v1/user/register,
+  http://localhost:3000/api/v1/user/login,
+  http://localhost:3000/api/v1/user/logout
+  http://localhost:3000/api/v1/user/rotate-token
+handle apis/api authapi 
+make baseurl .env variable, do existence of dotenv variable in src/config/config.js
+Regitser form, 
+  - All of the schema.md fields were here. 
+  - file picker element, can select pdf or image.
+  - All of the fields are required. 
+Login form,
+  - username or email option
+  - password 
+- Code must be componenwise so can easily be modifyable and movable accross project whenever needed. 
+- there are two types of login: admin and the user
+- take user to two different pages using the router 
+- modular code with making seperate 
+- the fields that to be include mentioned already in the ./schema.md file, use zod verification inside a validator file, make the desired response. 
+- keep in mind making the UI responsive from the start. 
+
+Backend:
+library, zod and multer. install the latest supporting version
+Regitser flow,
+  - POST http://localhost:3000/api/v1/user/register 
+  - req body contains the whole form data that was submitted by the user. 
+  - user is also submitting the pdf or image, you have to load it from frontend. For help, managing the files use multer.
+  - perform validation using zod. 
+  - provide user error from the pool of correct 400-499 error, if they missed or doesn't follow requirements.
+  - user id and status 
