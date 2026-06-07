@@ -1,199 +1,203 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, Link } from 'react-router-dom';
-import { registerSchema } from '../validators/authValidators';
-import axiosInstance from '../api/axiosInstance';
-import InputField from '../components/InputField';
-import FilePicker from '../components/FilePicker';
-import Button from '../components/Button';
-import FormError from '../components/FormError';
+import { z } from 'zod';
+import axios from '../api/axiosConfig.js';
+
+const registerSchema = z.object({
+    username: z.string().min(3, "Username must be at least 3 characters").max(50),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    full_name: z.string().max(150).optional(),
+    admission_no: z.string().max(20).optional(),
+    branch: z.string().max(100).optional(),
+    semester: z.string().optional(),
+    degree: z.enum(['BTECH', 'MTECH', 'PHD', 'MSC']).optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+    mobile_no: z.string().max(15).optional(),
+    bonafide: z.any().optional(),
+});
 
 const Register = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(registerSchema)
-  });
-  const [globalError, setGlobalError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const [serverError, setServerError] = useState('');
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    setGlobalError('');
-    try {
-      const formData = new FormData();
-      Object.keys(data).forEach(key => {
-        if (key === 'bonafide_file') {
-          formData.append(key, data[key][0]);
-        } else {
-          formData.append(key, data[key]);
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(registerSchema)
+    });
+
+    const onSubmit = async (data) => {
+        try {
+            setServerError('');
+            const formData = new FormData();
+
+            // Append all text fields
+            Object.keys(data).forEach(key => {
+                if (key !== 'bonafide' && data[key]) {
+                    formData.append(key, data[key]);
+                }
+            });
+
+            // Append file if exists
+            if (data.bonafide && data.bonafide[0]) {
+                formData.append('bonafide', data.bonafide[0]);
+            }
+
+            const response = await axios.post('/api/v1/user/register', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            console.log("Registration successful", response.data);
+            navigate('/login');
+        } catch (error) {
+            console.error("Registration failed", error);
+            setServerError(error.response?.data?.error || 'Registration failed. Please try again.');
         }
-      });
+    };
 
-      await axiosInstance.post('/user/register', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      navigate('/login');
-    } catch (error) {
-      setGlobalError(error.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow">
+                <div>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create an account</h2>
+                </div>
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="max-w-4xl w-full bg-white rounded-lg shadow p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Student Registration</h2>
-          <p className="text-sm text-gray-600 mt-2">Create your account to get started</p>
+                {serverError && (
+                    <div className="bg-red-50 text-red-700 p-3 rounded text-sm text-center">
+                        {typeof serverError === 'string' ? serverError : JSON.stringify(serverError)}
+                    </div>
+                )}
+
+                <form className="mt-8 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+                    <div>
+                        <input
+                            {...register("username")}
+                            type="text"
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Username *"
+                        />
+                        {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
+                    </div>
+
+                    <div>
+                        <input
+                            {...register("email")}
+                            type="email"
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Email *"
+                        />
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                    </div>
+
+                    <div>
+                        <input
+                            {...register("password")}
+                            type="password"
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Password *"
+                        />
+                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <input
+                                {...register("full_name")}
+                                type="text"
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Full Name"
+                            />
+                        </div>
+                        <div>
+                            <input
+                                {...register("admission_no")}
+                                type="text"
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Admission No"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <select {...register("degree")} className="appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-500 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="">Degree...</option>
+                                <option value="BTECH">B.Tech</option>
+                                <option value="MTECH">M.Tech</option>
+                                <option value="PHD">PhD</option>
+                                <option value="MSC">MSc</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input
+                                {...register("branch")}
+                                type="text"
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Branch"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <input
+                                {...register("semester")}
+                                type="number"
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Semester (Number)"
+                            />
+                        </div>
+                        <div>
+                            <select {...register("gender")} className="appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-500 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="">Gender...</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input
+                            {...register("mobile_no")}
+                            type="text"
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Mobile No"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Bonafide Certificate (PDF/Image)</label>
+                        <input
+                            {...register("bonafide")}
+                            type="file"
+                            accept=".pdf,image/*"
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        />
+                    </div>
+
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+                        >
+                            {isSubmitting ? 'Registering...' : 'Register'}
+                        </button>
+                    </div>
+
+                    <div className="text-center mt-4">
+                        <Link to="/login" className="text-sm text-blue-600 hover:text-blue-500">
+                            Already have an account? Sign in.
+                        </Link>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        {globalError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <FormError message={globalError} />
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <InputField
-              id="username"
-              label="Username"
-              placeholder="johndoe"
-              error={errors.username}
-              {...register('username')}
-            />
-
-            <InputField
-              id="full_name"
-              label="Full Name"
-              placeholder="John Doe"
-              error={errors.full_name}
-              {...register('full_name')}
-            />
-
-            <InputField
-              id="svnit_email"
-              label="SVNIT Email"
-              type="email"
-              placeholder="john@svnit.ac.in"
-              error={errors.svnit_email}
-              {...register('svnit_email')}
-            />
-
-            <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="degree" className="text-sm font-medium text-gray-700">Degree</label>
-              <select
-                id="degree"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.degree ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                {...register('degree')}
-              >
-                <option value="">Select Degree</option>
-                <option value="BTECH">B.Tech</option>
-                <option value="MTECH">M.Tech</option>
-                <option value="PHD">Ph.D</option>
-                <option value="MSC">M.Sc</option>
-              </select>
-              {errors.degree && <FormError message={errors.degree.message} />}
-            </div>
-
-            <InputField
-              id="branch"
-              label="Branch"
-              placeholder="Computer Engineering"
-              error={errors.branch}
-              {...register('branch')}
-            />
-
-            <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="semester" className="text-sm font-medium text-gray-700">Semester</label>
-              <input
-                id="semester"
-                type="number"
-                min="1"
-                max="8"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.semester ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                {...register('semester', { valueAsNumber: true })}
-              />
-              {errors.semester && <FormError message={errors.semester.message} />}
-            </div>
-
-            <InputField
-              id="admission_no"
-              label="Admission Number"
-              placeholder="U28CSXXX"
-              error={errors.admission_no}
-              {...register('admission_no')}
-            />
-
-            <InputField
-              id="mobile_no"
-              label="Mobile Number"
-              placeholder="1234567890"
-              error={errors.mobile_no}
-              {...register('mobile_no')}
-            />
-
-            <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="gender" className="text-sm font-medium text-gray-700">Gender</label>
-              <select
-                id="gender"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.gender ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
-                {...register('gender')}
-              >
-                <option value="">Select Gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-              {errors.gender && <FormError message={errors.gender.message} />}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-              error={errors.password}
-              {...register('password')}
-            />
-
-            <FilePicker
-              id="bonafide_file"
-              label="Bonafide Certificate (PDF/PNG/JPG max 5MB)"
-              accept=".pdf,.png,.jpg,.jpeg"
-              error={errors.bonafide_file}
-              {...register('bonafide_file')}
-            />
-          </div>
-
-          <div className="flex justify-center mt-8">
-            <Button type="submit" isLoading={isLoading} className="w-full md:w-1/2">
-              Register
-            </Button>
-          </div>
-        </form>
-
-        <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600">Already have an account? </span>
-          <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
-            Sign in here
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Register;

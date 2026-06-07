@@ -1,22 +1,20 @@
-export const authenticateUser = (req, res, next) => {
-    // Basic JWT verification logic placeholder
-    const token = req.headers.authorization?.split(' ')[1];
+import jwt from 'jsonwebtoken';
 
-    if (!token) {
-        return res.status(401).json({ error: 'Access denied. No token provided.' });
+export const authenticateUser = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Access denied. No valid token provided.' });
     }
 
+    const token = authHeader.split(' ')[1];
+
     try {
-        // In a real app: const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // req.user = decoded;
-
-        // Mock verification
-        if (token === 'mock-invalid-token') throw new Error('Invalid token');
-
-        req.user = { id: '123e4567-e89b-12d3-a456-426614174002', role: 'STUDENT' };
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_dev');
+        req.user = decoded; // Contains id, role, status
         next();
     } catch (error) {
-        res.status(400).json({ error: 'Invalid token.' });
+        res.status(401).json({ error: 'Invalid or expired token.' });
     }
 };
 

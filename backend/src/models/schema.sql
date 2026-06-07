@@ -1,10 +1,65 @@
--- 🐘 PostgreSQL Database Schema: Extended for Clubs, Events, Teams, Messages, Payments
+-- 🐘 PostgreSQL Database Schema: Complete with Users, Clubs, Events, Teams, Messages, Payments
 
 -- Ensure we are in the correct schema (student)
 CREATE SCHEMA IF NOT EXISTS student;
 
 -- ==========================================
--- 2. Custom ENUM Types
+-- 1. Custom ENUM Types for Users
+-- ==========================================
+
+CREATE TYPE student.user_role AS ENUM (
+    'STUDENT',
+    'ADMIN'
+);
+
+CREATE TYPE student.user_status AS ENUM (
+    'PENDING',
+    'VERIFIED',
+    'REJECTED'
+);
+
+CREATE TYPE student.degree_type AS ENUM (
+    'BTECH',
+    'MTECH',
+    'PHD',
+    'MSC'
+);
+
+CREATE TYPE student.gender_type AS ENUM (
+    'MALE',
+    'FEMALE',
+    'OTHER'
+);
+
+-- ==========================================
+-- 2. Users Table
+-- ==========================================
+
+CREATE TABLE student.users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role student.user_role NOT NULL DEFAULT 'STUDENT',
+    status student.user_status NOT NULL DEFAULT 'PENDING',
+    full_name VARCHAR(150),
+    admission_no VARCHAR(20) UNIQUE,
+    branch VARCHAR(100),
+    semester INTEGER,
+    degree student.degree_type,
+    gender student.gender_type,
+    mobile_no VARCHAR(15) UNIQUE,
+    bonafide_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_username ON student.users(username);
+CREATE INDEX idx_users_email ON student.users(email);
+
+
+-- ==========================================
+-- 3. Custom ENUM Types for Features
 -- ==========================================
 
 -- Club Member Roles
@@ -44,7 +99,7 @@ CREATE TYPE student.payment_status AS ENUM (
 );
 
 -- ==========================================
--- 3. Tables
+-- 4. Feature Tables
 -- ==========================================
 
 -- Clubs Table
@@ -128,7 +183,7 @@ CREATE TABLE student.Payments (
 );
 
 -- ==========================================
--- 4. Indexes (For optimization)
+-- 5. Indexes (For optimization)
 -- ==========================================
 
 CREATE INDEX idx_club_members_club_id ON student.Club_Members(club_id);
