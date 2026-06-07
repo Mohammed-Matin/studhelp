@@ -1,5 +1,5 @@
 
-const CalendarGrid = ({ events = [] }) => {
+const CalendarGrid = ({ events = [] }) => { console.log(events);
     // Basic placeholder for a calendar grid
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const weeks = Array(5).fill(Array(7).fill(null)); // Mock 5 weeks
