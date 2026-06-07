@@ -1,0 +1,65 @@
+
+> backend-init@1.0.0 start
+> node server.js
+
+◇ injected env (1) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Server is running on http://localhost:3000
+A user connected: NcPnwB0K3Jii6YrQAAAB
+User NcPnwB0K3Jii6YrQAAAB joined room: global
+Error saving message to DB: AggregateError [ECONNREFUSED]:
+    at /app/backend/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Socket.<anonymous> (file:///app/backend/server.js:33:9) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 5432
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 5432
+    }
+  ]
+}
+User disconnected: NcPnwB0K3Jii6YrQAAAB
+A user connected: bJiTNr4_-_aI9C7VAAAD
+User bJiTNr4_-_aI9C7VAAAD joined room: 123e4567-e89b-12d3-a456-426614174001
+Error saving message to DB: AggregateError [ECONNREFUSED]:
+    at /app/backend/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Socket.<anonymous> (file:///app/backend/server.js:33:9) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 5432
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:5432
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 5432
+    }
+  ]
+}
+User disconnected: bJiTNr4_-_aI9C7VAAAD

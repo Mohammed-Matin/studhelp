@@ -23,16 +23,14 @@ io.on('connection', (socket) => {
 
   // Handle incoming messages
   socket.on('send_message', async (data) => {
-    // data should contain { room, senderId, content, isAnonymous }
-
     // Broadcast the message to everyone in the room
     io.to(data.room).emit('receive_message', data);
 
     // Save to the student.Messages table
     try {
         await pool.query(
-            'INSERT INTO student.Messages (sender_id, receiver_id, content, is_anonymous) VALUES ($1, $2, $3, $4)',
-            [data.senderId, data.room, data.content, data.isAnonymous || false] // Note: room logic would need refinement for strict UUIDs
+            'INSERT INTO student.Messages (sender_id, receiver_id, content, is_anonymous, is_group_chat) VALUES ($1, $2, $3, $4, $5)',
+            [data.senderId, data.room, data.content, data.isAnonymous || false, true]
         );
     } catch (error) {
         console.error("Error saving message to DB:", error);
