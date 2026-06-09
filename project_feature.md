@@ -23,12 +23,6 @@
 
 ---
 
-### 2. Video Streaming Sessions
-
-* Interviews
-* Meetings
-* Live Event Streaming
-
 ---
 
 ## 🔗 System Relationships (Flow)
@@ -37,15 +31,6 @@
 * User (Member) → Club
 * Event → Club
 * Messaging Platform → Club
-* Club → Live Online Sessions
-* Live Streaming (external/extension)
-
----
-
-## 💳 Payment Integration
-
-* Razorpay integration
-* Event-based payments
 
 ---
 
@@ -79,7 +64,6 @@
 * Calendar-based visibility:
 
   * Upcoming
-  * Live
   * Past (History)
 
 ### Participation
@@ -91,7 +75,6 @@
   * Leader assignment
   * Member invite/drop
   * Messaging
-  * Video calls
 
 ---
 
@@ -141,8 +124,6 @@
   * Users
   * Events
   * Messaging
-  * Streaming
-  * Payments
 * Highly modular system (can scale features independently)
 
 ---

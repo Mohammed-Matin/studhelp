@@ -264,7 +264,6 @@ const EventPage = () => {
                         <div className="text-sm text-gray-600 mb-4">
                             <p>Type: <strong>{event.participation_type}</strong></p>
                             <p>Registered: <strong>{event.registrationCount || 0}</strong></p>
-                            {event.entry_fee > 0 && <p>Fee: <strong>₹{event.entry_fee}</strong></p>}
                         </div>
 
                         {isOrganizer ? (
@@ -284,14 +283,6 @@ const EventPage = () => {
                                 >
                                     {event.status === 'UPCOMING' || event.status === 'LIVE' ? 'Register Now' : 'Registration Closed'}
                                 </button>
-                                {event.entry_fee > 0 && (event.status === 'UPCOMING' || event.status === 'LIVE') && (
-                                    <Link
-                                        to={`/payment?event_id=${id}&amount=${event.entry_fee}&name=${encodeURIComponent(event.title)}`}
-                                        className="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
-                                    >
-                                        Pay ₹{event.entry_fee} & Register
-                                    </Link>
-                                )}
                             </div>
                         )}
                     </div>

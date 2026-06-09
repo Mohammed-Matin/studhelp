@@ -382,7 +382,6 @@ const EventsTab = ({ club, isManager }) => {
                             <p className="text-sm text-gray-500 line-clamp-2 mb-3">{event.description || ''}</p>
                             <div className="flex items-center gap-4 text-xs text-gray-400">
                                 <span>{new Date(event.start_time).toLocaleDateString()}</span>
-                                {event.entry_fee > 0 && <span>₹{event.entry_fee}</span>}
                                 <span>{event.participation_type}</span>
                             </div>
                         </Link>
@@ -398,7 +397,7 @@ const EventsTab = ({ club, isManager }) => {
 const EventCreateForm = ({ onSubmit, onCancel }) => {
     const [form, setForm] = useState({
         title: '', description: '', start_time: '', end_time: '',
-        participation_type: 'BOTH', entry_fee: '',
+        participation_type: 'BOTH',
     });
 
     const handleSubmit = (e) => {
@@ -413,7 +412,6 @@ const EventCreateForm = ({ onSubmit, onCancel }) => {
         }
         onSubmit({
             ...form,
-            entry_fee: form.entry_fee ? parseFloat(form.entry_fee) : 0,
             start_time: new Date(form.start_time).toISOString(),
             end_time: new Date(form.end_time).toISOString(),
         });
@@ -451,11 +449,6 @@ const EventCreateForm = ({ onSubmit, onCancel }) => {
                         <option value="SOLO">Solo Only</option>
                         <option value="TEAM">Team Only</option>
                     </select>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee (₹)</label>
-                    <input type="number" min="0" value={form.entry_fee} onChange={(e) => setForm({ ...form, entry_fee: e.target.value })}
-                           className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
             </div>
             <div className="flex gap-3 justify-end">

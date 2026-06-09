@@ -8,8 +8,6 @@ import EventPage from '../pages/EventPage';
 import CalendarView from '../pages/CalendarView';
 import ChatInterface from '../pages/ChatInterface';
 import ProfilePage from '../pages/ProfilePage';
-import PaymentPage from '../pages/PaymentPage';
-import VideoStreaming from '../pages/VideoStreaming';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { isAdmin, clearToken } from '../utils/auth';
 
@@ -30,7 +28,6 @@ const AppLayout = ({ children }) => (
                     <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600">Admin</Link>
                 )}
                 <Link to="/chat" className="text-gray-600 hover:text-blue-600">Chat</Link>
-                <Link to="/video?room=General" className="text-gray-600 hover:text-blue-600">Video</Link>
                 <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">
                     Logout
                 </button>
@@ -110,23 +107,6 @@ const AppRouter = () => {
                         </ProtectedRoute>
                     }
                 />
-                <Route
-                    path="/payment"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><PaymentPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/video"
-                    element={
-                        <ProtectedRoute>
-                            <VideoStreaming />
-                        </ProtectedRoute>
-                    }
-                />
-
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </BrowserRouter>

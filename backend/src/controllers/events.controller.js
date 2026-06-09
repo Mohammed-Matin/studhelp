@@ -31,7 +31,7 @@ async function isRegisteredForEvent(userId, eventId) {
 // ─── CRUD ─────────────────────────────────────────────────────
 
 export const createEvent = async (req, res) => {
-    const { club_id, title, description, start_time, end_time, participation_type, max_teams, max_participants, entry_fee } = req.body;
+    const { club_id, title, description, start_time, end_time, participation_type, max_teams, max_participants } = req.body;
     try {
         const clubResult = await pool.query('SELECT id FROM student.Clubs WHERE id = $1', [club_id]);
         if (clubResult.rows.length === 0) {
@@ -44,9 +44,9 @@ export const createEvent = async (req, res) => {
         }
 
         const result = await pool.query(
-            `INSERT INTO student.Events (club_id, title, description, start_time, end_time, participation_type, max_teams, max_participants, entry_fee)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-            [club_id, title, description, start_time, end_time, participation_type || 'BOTH', max_teams, max_participants, entry_fee || 0.00]
+            `INSERT INTO student.Events (club_id, title, description, start_time, end_time, participation_type, max_teams, max_participants)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [club_id, title, description, start_time, end_time, participation_type || 'BOTH', max_teams, max_participants]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -164,7 +164,7 @@ export const updateEvent = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid event ID format' });
     }
-    const { title, description, banner_url, start_time, end_time, participation_type, max_teams, max_participants, entry_fee } = req.body;
+    const { title, description, banner_url, start_time, end_time, participation_type, max_teams, max_participants } = req.body;
     try {
         const result = await pool.query(
             `UPDATE student.Events
@@ -176,11 +176,10 @@ export const updateEvent = async (req, res) => {
                  participation_type = COALESCE($6, participation_type),
                  max_teams = $7,
                  max_participants = $8,
-                 entry_fee = COALESCE($9, entry_fee),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE id = $10
+             WHERE id = $9
              RETURNING *`,
-            [title, description, banner_url, start_time, end_time, participation_type, max_teams ?? null, max_participants ?? null, entry_fee, id]
+            [title, description, banner_url, start_time, end_time, participation_type, max_teams ?? null, max_participants ?? null, id]
         );
         if (result.rows.length === 0) return res.status(404).json({ error: 'Event not found' });
         res.json(result.rows[0]);

@@ -55,10 +55,6 @@ const Dashboard = () => {
                         My Club
                     </Link>
                 )}
-                <Link to="/video?room=General+Meeting"
-                      className="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition shadow-sm">
-                    Start Video Call
-                </Link>
             </div>
 
             {/* My Clubs */}

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Full-stack SaaS platform for managing college clubs, events, teams, payments, and real-time communication. Built for NIT Surat (SVNIT). Students register with bonafide documents, admins verify them, and verified users can join clubs, participate in events, form teams, make payments, and chat in real-time.
+Full-stack SaaS platform for managing college clubs, events, teams, and real-time communication. Built for NIT Surat (SVNIT). Students register with bonafide documents, admins verify them, and verified users can join clubs, participate in events, form teams, and chat in real-time.
 
 ---
 
@@ -14,7 +14,6 @@ Full-stack SaaS platform for managing college clubs, events, teams, payments, an
 | Backend    | Node.js + Express 5 + Socket.io + JWT (jsonwebtoken) + Zod                 |
 | Database   | PostgreSQL (via `pg` Pool) on NeonDB                                       |
 | Storage    | Cloudinary (avatars, bonafide docs, gallery images)                        |
-| Payments   | Razorpay                                                                   |
 | Validation | Zod (shared patterns on both ends)                                         |
 
 ---
@@ -26,7 +25,7 @@ studhelp/
 ├── backend/                        # Express API server
 │   ├── server.js                   # HTTP + Socket.io bootstrap
 │   ├── package.json
-│   ├── .env                        # All secrets (DB, JWT, Cloudinary, Razorpay)
+│   ├── .env                        # All secrets (DB, JWT, Cloudinary)
 │   └── src/
 │       ├── app.js                  # Express app: CORS, routes, 404, error handler
 │       ├── config/
@@ -38,20 +37,18 @@ studhelp/
 │       │   ├── clubs.controller.js     # 24 handlers
 │       │   ├── events.controller.js    # 15 handlers
 │       │   ├── teams.controller.js     # 7 handlers
-│       │   ├── messages.controller.js  # 8 handlers
-│       │   └── payments.controller.js  # 4 handlers
-│       ├── routes/
+│   │   ├── messages.controller.js  # 8 handlers
+│   ├── routes/
 │       │   ├── auth.routes.js
 │       │   ├── clubs.routes.js
 │       │   ├── events.routes.js
 │       │   ├── teams.routes.js
-│       │   ├── messages.routes.js
-│       │   └── payments.routes.js
-│       ├── middlewares/
+│   │   ├── messages.routes.js
+│   ├── middlewares/
 │       │   ├── auth.middleware.js  # authenticateUser, authorizeAdmin
 │       │   └── upload.js           # Multer + CloudinaryStorage (bonafide, gallery, avatar)
 │       ├── models/
-│       │   └── schema.sql          # Full PostgreSQL DDL (16 tables, 8 enums)
+│   │   └── schema.sql          # Full PostgreSQL DDL (16 tables, 7 enums)
 │       ├── scripts/
 │       │   ├── migrate.js          # Create schema
 │       │   ├── seed.js             # Seed admin user
@@ -96,8 +93,6 @@ studhelp/
 │           ├── CalendarView.jsx
 │           ├── ChatInterface.jsx
 │           ├── ProfilePage.jsx
-│           ├── PaymentPage.jsx
-│           └── VideoStreaming.jsx   # UI-only placeholder
 │
 ├── prompts/                        # AI prompt templates (intra-team tooling)
 │   └── backend-init.prompt.md
@@ -118,7 +113,6 @@ studhelp/
 - npm
 - A PostgreSQL database (NeonDB recommended)
 - Cloudinary account
-- Razorpay account (test mode)
 
 ### Backend
 
@@ -141,8 +135,6 @@ DATABASE_URL=postgresql://user:pass@host/studhelp?sslmode=require
 CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
-RAZORPAY_KEY_ID=...
-RAZORPAY_KEY_SECRET=...
 ```
 
 ### Frontend
@@ -235,8 +227,8 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 
 - Frontend pages: `EventPage.jsx`, `CalendarView.jsx`
 - Participation types: SOLO, TEAM, BOTH
-- Status flow: UPCOMING → LIVE → PAST (or POSTPONED / CANCELLED)
-- Entry fees with Razorpay integration
+- Status flow: UPCOMING → PAST (or POSTPONED / CANCELLED)
+- Entry fees
 
 ### 4. Teams
 
@@ -268,26 +260,9 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 - Socket.io rooms: `dm_{userId}`, `CLUB_{clubId}`, `CLUB_{clubId}_{role_tag}`, `EVENT_{eventId}`, `TEAM_{teamId}`
 - Anonymous message toggle
 
-### 6. Payments (Razorpay)
+### 6. Database Schema (`student` schema)
 
-| Endpoint                                      | Auth | Description                           |
-|-----------------------------------------------|------|---------------------------------------|
-| `GET /api/v1/payments/key`                    | —    | Get Razorpay public key               |
-| `POST /api/v1/payments`                       | User | Create payment order                  |
-| `GET /api/v1/payments/:id`                    | User | Check status (by UUID or order ID)   |
-| `POST /api/v1/payments/verify`                | User | Verify HMAC signature                 |
-
-- Frontend page: `PaymentPage.jsx` (~160 lines)
-- Razorpay checkout integration with callback verification
-
-### 7. Video Streaming
-
-- `VideoStreaming.jsx` — UI-only placeholder with room name, dummy participants, mic/cam toggle, end call button
-- No WebRTC implementation
-
-### 8. Database Schema (`student` schema)
-
-16 tables, 8 custom enums:
+16 tables, 7 custom enums:
 
 - `users` — Students & admins with verification workflow
 - `Clubs` — Core club entity with member/follower counts + budget
@@ -304,7 +279,6 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 - `Teams` — Per event, with unique team_name
 - `Team_Members` — INVITED/JOINED/DECLINED/DROPPED
 - `Messages` — DM and group messages with anonymous flag
-- `Payments` — Razorpay integration records
 
 ---
 
@@ -315,7 +289,6 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 | Item | Details |
 |------|---------|
 | **Tests** | Zero tests exist anywhere — backend controllers, frontend components, integration |
-| **Video streaming** | `VideoStreaming.jsx` is a UI shell — needs real WebRTC (PeerJS or similar) |
 | **Push notifications** | No email or push notification system for event reminders, club updates, etc. |
 | **Rate limiting** | No rate limiting on auth endpoints (register/login) — vulnerable to brute force |
 | **Input sanitization** | Some fields (description, messages) accept raw HTML — no XSS protection |
@@ -330,7 +303,6 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 | **Password reset** | No forgot password / reset flow |
 | **Email verification** | No email verification on registration (admin manually verifies bonafide) |
 | **Pagination** | Only budget transactions have pagination — events, clubs, members, messages are unbounded |
-| **Webhook for payments** | Razorpay payment timeout/status sync relies on frontend callback — no webhook endpoint |
 | **Club join request limit** | No rate limit on join requests (spam possible) |
 | **Search/filter** | Club and event lists have no search or advanced filter UI on frontend |
 
@@ -352,7 +324,6 @@ Env: `VITE_API_BASE_URL=http://localhost:3000/api/v1`
 - `addOrganizer` checks club manager role
 - `inviteMember` checks team leader or club manager
 - `updateProfile` does not accept `avatar_url` from body
-- `getPaymentStatus` conditionally queries by UUID or Razorpay order ID
 - Global 404 + error handlers in Express
 - Socket.IO errors caught in try/catch
 - JWT token auto-rotation on 401

@@ -15,7 +15,6 @@ async function migrate() {
             { name: 'student.club_role', values: ['CORE_COMMITTEE', 'EXECUTIVE', 'TECHNICAL', 'DESIGN', 'PUBLICITY', 'ADMINISTRATIVE_SPONSORS', 'CUSTOM'] },
             { name: 'student.event_status', values: ['UPCOMING', 'LIVE', 'PAST', 'POSTPONED', 'CANCELLED'] },
             { name: 'student.team_member_status', values: ['INVITED', 'JOINED', 'DECLINED', 'DROPPED'] },
-            { name: 'student.payment_status', values: ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'] },
         ];
 
         for (const enumType of enumTypes) {
@@ -131,7 +130,6 @@ async function migrate() {
                 participation_type VARCHAR(10) NOT NULL DEFAULT 'BOTH',
                 max_teams INTEGER,
                 max_participants INTEGER,
-                entry_fee DECIMAL(10, 2) DEFAULT 0.00,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )`,
@@ -172,18 +170,6 @@ async function migrate() {
                 content TEXT NOT NULL,
                 is_anonymous BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            )`,
-            `CREATE TABLE IF NOT EXISTS student.Payments (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE RESTRICT,
-                event_id UUID NOT NULL REFERENCES student.Events(id) ON DELETE RESTRICT,
-                razorpay_order_id VARCHAR(255) UNIQUE NOT NULL,
-                razorpay_payment_id VARCHAR(255) UNIQUE,
-                razorpay_signature VARCHAR(255),
-                amount DECIMAL(10, 2) NOT NULL,
-                status student.payment_status NOT NULL DEFAULT 'PENDING',
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )`,
         ];
 
@@ -226,8 +212,6 @@ async function migrate() {
             'CREATE INDEX IF NOT EXISTS idx_event_registrations_event ON student.Event_Registrations(event_id)',
             'CREATE INDEX IF NOT EXISTS idx_teams_event_id ON student.Teams(event_id)',
             'CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON student.Messages(receiver_id)',
-            'CREATE INDEX IF NOT EXISTS idx_payments_user_id ON student.Payments(user_id)',
-            'CREATE INDEX IF NOT EXISTS idx_payments_event_id ON student.Payments(event_id)',
         ];
 
         for (const indexSql of indexes) {

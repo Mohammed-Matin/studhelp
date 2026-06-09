@@ -176,59 +176,59 @@ async function seedDemo() {
             if (codingClubId) {
                 // Coding Club events
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams, max_participants, entry_fee)
-                     VALUES ($1, 'Hackathon 2026', 'A 24-hour coding competition to build innovative solutions.', $2, $3, 'UPCOMING', 'TEAM', 20, NULL, 0.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams, max_participants)
+                     VALUES ($1, 'Hackathon 2026', 'A 24-hour coding competition to build innovative solutions.', $2, $3, 'UPCOMING', 'TEAM', 20, NULL)`,
                     [codingClubId, new Date(now.getTime() + 14 * day), new Date(now.getTime() + 15 * day)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Python Workshop', 'Hands-on workshop on Python for data science and automation.', $2, $3, 'UPCOMING', 'SOLO', 50, 100.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Python Workshop', 'Hands-on workshop on Python for data science and automation.', $2, $3, 'UPCOMING', 'SOLO', 50)`,
                     [codingClubId, new Date(now.getTime() + 21 * day), new Date(now.getTime() + 21 * day + 4 * 3600000)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Code Debugging Contest', 'Find bugs, fix code, win prizes!', $2, $3, 'LIVE', 'SOLO', 100, 0.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Code Debugging Contest', 'Find bugs, fix code, win prizes!', $2, $3, 'LIVE', 'SOLO', 100)`,
                     [codingClubId, new Date(now.getTime() - 2 * 3600000), new Date(now.getTime() + 4 * 3600000)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams, entry_fee)
-                     VALUES ($1, 'Algo Rush', 'Team-based algorithmic problem solving challenge.', $2, $3, 'PAST', 'TEAM', 15, 50.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams)
+                     VALUES ($1, 'Algo Rush', 'Team-based algorithmic problem solving challenge.', $2, $3, 'PAST', 'TEAM', 15)`,
                     [codingClubId, new Date(now.getTime() - 30 * day), new Date(now.getTime() - 29 * day)]
                 );
             }
 
             if (culturalClubId) {
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Annual Cultural Fest', 'The biggest cultural event of the year with dance, drama, and music competitions.', $2, $3, 'UPCOMING', 'SOLO', 200, 200.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Annual Cultural Fest', 'The biggest cultural event of the year with dance, drama, and music competitions.', $2, $3, 'UPCOMING', 'SOLO', 200)`,
                     [culturalClubId, new Date(now.getTime() + 30 * day), new Date(now.getTime() + 32 * day)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Open Mic Night', 'Showcase your talent — poetry, stand-up, music, and more!', $2, $3, 'UPCOMING', 'SOLO', 30, 0.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Open Mic Night', 'Showcase your talent — poetry, stand-up, music, and more!', $2, $3, 'UPCOMING', 'SOLO', 30)`,
                     [culturalClubId, new Date(now.getTime() + 7 * day), new Date(now.getTime() + 7 * day + 4 * 3600000)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Drama Workshop', 'Learn the art of theater and stage performance.', $2, $3, 'POSTPONED', 'SOLO', 25, 150.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Drama Workshop', 'Learn the art of theater and stage performance.', $2, $3, 'POSTPONED', 'SOLO', 25)`,
                     [culturalClubId, new Date(now.getTime() - 5 * day), new Date(now.getTime() - 5 * day + 6 * 3600000)]
                 );
             }
 
             if (sportsClubId) {
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams, entry_fee)
-                     VALUES ($1, 'Inter-College Cricket Tournament', 'Annual cricket tournament open to all colleges.', $2, $3, 'UPCOMING', 'TEAM', 16, 500.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_teams)
+                     VALUES ($1, 'Inter-College Cricket Tournament', 'Annual cricket tournament open to all colleges.', $2, $3, 'UPCOMING', 'TEAM', 16)`,
                     [sportsClubId, new Date(now.getTime() + 45 * day), new Date(now.getTime() + 47 * day)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Yoga Session', 'Morning yoga and meditation session for all.', $2, $3, 'LIVE', 'SOLO', 40, 0.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Yoga Session', 'Morning yoga and meditation session for all.', $2, $3, 'LIVE', 'SOLO', 40)`,
                     [sportsClubId, new Date(now.getTime() - 1 * 3600000), new Date(now.getTime() + 1 * 3600000)]
                 );
                 await client.query(
-                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants, entry_fee)
-                     VALUES ($1, 'Chess Championship', 'Classic chess tournament with knockout rounds.', $2, $3, 'PAST', 'SOLO', 32, 0.00)`,
+                    `INSERT INTO student.Events (club_id, title, description, start_time, end_time, status, participation_type, max_participants)
+                     VALUES ($1, 'Chess Championship', 'Classic chess tournament with knockout rounds.', $2, $3, 'PAST', 'SOLO', 32)`,
                     [sportsClubId, new Date(now.getTime() - 60 * day), new Date(now.getTime() - 60 * day + 8 * 3600000)]
                 );
             }

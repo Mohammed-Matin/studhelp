@@ -9,8 +9,6 @@ const requiredEnvVars = [
     "CLOUDINARY_CLOUD_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
-    "RAZORPAY_KEY_ID",
-    "RAZORPAY_KEY_SECRET",
 ];
 
 for (const envVar of requiredEnvVars) {
@@ -28,8 +26,6 @@ const config = {
         apiKey: process.env.CLOUDINARY_API_KEY,
         apiSecret: process.env.CLOUDINARY_API_SECRET,
     },
-    razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-    razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET,
 };
 
 if (!Number.isInteger(config.port) || config.port <= 0) {

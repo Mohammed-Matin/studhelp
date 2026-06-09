@@ -1,4 +1,4 @@
--- 🐘 PostgreSQL Database Schema: Extended for Clubs, Events, Teams, Messages, Payments
+-- 🐘 PostgreSQL Database Schema: Extended for Clubs, Events, Teams, Messages
 
 -- Ensure we are in the correct schema (student)
 CREATE SCHEMA IF NOT EXISTS student;
@@ -45,14 +45,6 @@ CREATE TYPE student.team_member_status AS ENUM (
     'JOINED',
     'DECLINED',
     'DROPPED'
-);
-
--- Payment Statuses
-CREATE TYPE student.payment_status AS ENUM (
-    'PENDING',
-    'SUCCESS',
-    'FAILED',
-    'REFUNDED'
 );
 
 -- ==========================================
@@ -184,7 +176,6 @@ CREATE TABLE student.Events (
     participation_type VARCHAR(10) NOT NULL DEFAULT 'BOTH' CHECK (participation_type IN ('SOLO', 'TEAM', 'BOTH')),
     max_teams INTEGER,
     max_participants INTEGER,
-    entry_fee DECIMAL(10, 2) DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -239,20 +230,6 @@ CREATE TABLE student.Messages (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Payments Table
-CREATE TABLE student.Payments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE RESTRICT,
-    event_id UUID NOT NULL REFERENCES student.Events(id) ON DELETE RESTRICT,
-    razorpay_order_id VARCHAR(255) UNIQUE NOT NULL,
-    razorpay_payment_id VARCHAR(255) UNIQUE,
-    razorpay_signature VARCHAR(255),
-    amount DECIMAL(10, 2) NOT NULL,
-    status student.payment_status NOT NULL DEFAULT 'PENDING',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 -- ==========================================
 -- 4. Indexes (For optimization)
 -- ==========================================
@@ -262,5 +239,3 @@ CREATE INDEX idx_events_club_id ON student.Events(club_id);
 CREATE INDEX idx_events_status ON student.Events(status);
 CREATE INDEX idx_teams_event_id ON student.Teams(event_id);
 CREATE INDEX idx_messages_receiver_id ON student.Messages(receiver_id);
-CREATE INDEX idx_payments_user_id ON student.Payments(user_id);
-CREATE INDEX idx_payments_event_id ON student.Payments(event_id);
