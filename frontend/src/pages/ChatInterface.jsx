@@ -13,6 +13,7 @@ const ChatInterface = () => {
   const activeChatRef = useRef(null);
   const user = getUser();
   const [conversations, setConversations] = useState([]);
+  const [clubChats, setClubChats] = useState([]);
   const [messages, setMessages] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [input, setInput] = useState("");
@@ -27,6 +28,15 @@ const ChatInterface = () => {
       setConversations(res.data);
     } catch (err) {
       console.error("Error fetching conversations:", err);
+    }
+  }, []);
+
+  const fetchClubChats = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get("/messages/clubs");
+      setClubChats(res.data);
+    } catch (err) {
+      console.error("Error fetching club chats:", err);
     }
   }, []);
 
@@ -83,15 +93,17 @@ const ChatInterface = () => {
         }
       }
       fetchConversations();
+      fetchClubChats();
     });
 
     fetchConversations();
+    fetchClubChats();
 
     return () => {
       RECENT_IDS.clear();
       socketRef.current.disconnect();
     };
-  }, [fetchConversations, user?.id]);
+  }, [fetchConversations, fetchClubChats, user?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -160,6 +172,18 @@ const ChatInterface = () => {
     });
   };
 
+  const selectClubChat = (club) => {
+    setShowSearch(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setActiveChat({
+      id: club.id,
+      name: club.name,
+      type: "CLUB",
+    });
+    socketRef.current?.emit("join_group", { groupType: "CLUB", groupId: club.id });
+  };
+
   const isMe = (senderId) => senderId === user?.id;
 
   return (
@@ -199,8 +223,50 @@ const ChatInterface = () => {
           )}
         </div>
 
-        {/* Conversations */}
+        {/* Club Chats */}
         <div className="flex-1 overflow-y-auto">
+          <div className="p-3 border-b bg-indigo-50">
+            <p className="text-xs font-semibold text-indigo-600 uppercase">
+              Club Chats
+            </p>
+          </div>
+          {clubChats.length === 0 ? (
+            <div className="p-4 text-center text-gray-400 text-sm border-b">
+              Join a club to access member chats
+            </div>
+          ) : (
+            clubChats.map((club) => (
+              <button
+                key={club.id}
+                onClick={() => selectClubChat(club)}
+                className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b flex items-center gap-3 transition ${
+                  activeChat?.id === club.id && activeChat?.type === "CLUB"
+                    ? "bg-indigo-50"
+                    : ""
+                }`}
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0 text-sm">
+                  {club.logo_url ? (
+                    <img src={club.logo_url} alt="" className="w-full h-full rounded-xl object-cover" />
+                  ) : (
+                    club.name?.charAt(0)?.toUpperCase()
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{club.name}</p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {club.user_role?.replace(/_/g, " ").toLowerCase()}
+                  </p>
+                  {club.last_message && (
+                    <p className="text-xs text-gray-400 truncate mt-0.5">
+                      {club.last_message}
+                    </p>
+                  )}
+                </div>
+              </button>
+            ))
+          )}
+
           <div className="p-3 border-b bg-gray-50">
             <p className="text-xs font-semibold text-gray-500 uppercase">
               Direct Messages
@@ -257,7 +323,9 @@ const ChatInterface = () => {
                 <p className="text-xs text-gray-500">
                   {activeChat.type === "dm"
                     ? `@${activeChat.username}`
-                    : activeChat.type}
+                    : activeChat.type === "CLUB"
+                      ? "Club member chat"
+                      : activeChat.type}
                 </p>
               </div>
             </div>
@@ -361,7 +429,7 @@ const ChatInterface = () => {
               <p className="text-5xl mb-4">💬</p>
               <p className="text-lg">Select a conversation</p>
               <p className="text-sm mt-1">
-                Choose a chat from the sidebar or search for someone
+                Open a club chat or search for someone to message
               </p>
             </div>
           </div>

@@ -12,6 +12,7 @@ import CalendarView from '../pages/CalendarView';
 import ChatInterface from '../pages/ChatInterface';
 import ProfilePage from '../pages/ProfilePage';
 import ProtectedRoute from '../components/ProtectedRoute';
+import NotificationBell from '../components/NotificationBell';
 import { isAdmin, clearToken } from '../utils/auth';
 
 const handleLogout = () => {
@@ -32,6 +33,7 @@ const AppLayout = ({ children }) => (
                     <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600">Admin</Link>
                 )}
                 <Link to="/chat" className="text-gray-600 hover:text-blue-600">Chat</Link>
+                <NotificationBell />
                 <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">
                     Logout
                 </button>

@@ -5,6 +5,7 @@ import clubRoutes from "./routes/clubs.routes.js";
 import eventRoutes from "./routes/events.routes.js";
 import teamRoutes from "./routes/teams.routes.js";
 import messageRoutes from "./routes/messages.routes.js";
+import notificationRoutes from "./routes/notifications.routes.js";
 const app = express();
 
 app.use(cors({
@@ -20,6 +21,7 @@ app.use('/api/v1/clubs', clubRoutes);
 app.use('/api/v1/events', eventRoutes);
 app.use('/api/v1/teams', teamRoutes);
 app.use('/api/v1/messages', messageRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend server is running" });

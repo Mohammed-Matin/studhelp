@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { notifyEventCreated, notifyEventRegistration } from '../services/notification.service.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -48,7 +49,15 @@ export const createEvent = async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
             [club_id, title, description, start_time, end_time, participation_type || 'BOTH', max_teams, max_participants]
         );
-        res.status(201).json(result.rows[0]);
+        const event = result.rows[0];
+
+        const club = (await pool.query('SELECT name FROM student.Clubs WHERE id = $1', [club_id])).rows[0];
+        const io = req.app.get('io');
+        if (club) {
+            await notifyEventCreated(io, event, club.name, req.user.userId);
+        }
+
+        res.status(201).json(event);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error creating event' });
@@ -332,6 +341,24 @@ export const registerForEvent = async (req, res) => {
             'INSERT INTO student.Event_Registrations (event_id, user_id) VALUES ($1, $2)',
             [id, req.user.userId]
         );
+
+        const club = (await pool.query(
+            'SELECT c.name FROM student.Clubs c JOIN student.Events e ON e.club_id = c.id WHERE e.id = $1',
+            [id]
+        )).rows[0];
+        const registrant = (await pool.query(
+            'SELECT username, full_name FROM student.users WHERE id = $1',
+            [req.user.userId]
+        )).rows[0];
+        const io = req.app.get('io');
+        if (club && registrant) {
+            await notifyEventRegistration(io, event, club.name, {
+                userId: req.user.userId,
+                username: registrant.username,
+                full_name: registrant.full_name,
+            });
+        }
+
         res.status(201).json({ message: 'Registered for event' });
     } catch (error) {
         console.error(error);
@@ -455,11 +482,36 @@ export const deleteEvent = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid event ID format' });
     }
+
+    const eventResult = await pool.query('SELECT club_id FROM student.Events WHERE id = $1', [id]);
+    if (eventResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const role = await getUserClubRole(req.user.userId, eventResult.rows[0].club_id);
+    if (!role || !MANAGER_ROLES.includes(role)) {
+        return res.status(403).json({ error: 'Only club managers can delete events' });
+    }
+
+    const client = await pool.connect();
     try {
-        await pool.query('DELETE FROM student.Events WHERE id = $1', [id]);
-        res.json({ message: 'Event deleted' });
+        await client.query('BEGIN');
+        await client.query(
+            "DELETE FROM student.Messages WHERE group_type = 'EVENT' AND receiver_id = $1",
+            [id]
+        );
+        await client.query(
+            "DELETE FROM student.Notifications WHERE reference_type = 'EVENT' AND reference_id = $1",
+            [id]
+        );
+        await client.query('DELETE FROM student.Events WHERE id = $1', [id]);
+        await client.query('COMMIT');
+        res.json({ message: 'Event deleted successfully' });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error(error);
         res.status(500).json({ error: 'Server error deleting event' });
+    } finally {
+        client.release();
     }
 };

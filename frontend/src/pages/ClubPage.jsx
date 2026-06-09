@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import UserSearchInput from '../components/UserSearchInput';
+import ClubChatPanel from '../components/ClubChatPanel';
 import {
     CLUB_ROLES,
     formatRole,
@@ -63,6 +64,7 @@ const ClubPage = () => {
     const isMember = !!club?.userRole;
 
     const displayTabs = [...BASE_TABS];
+    if (isMember) displayTabs.splice(3, 0, 'Chat');
     if (userIsManager) displayTabs.push('Dashboard');
     if (userIsManager) displayTabs.push('Settings');
     if (!isMember) displayTabs.push('Contact');
@@ -187,11 +189,14 @@ const ClubPage = () => {
                 )}
                 {activeTab === 'Events' && <EventsTab club={club} isManager={userIsManager} />}
                 {activeTab === 'About' && <AboutTab club={club} />}
+                {activeTab === 'Chat' && isMember && (
+                    <ClubChatPanel clubId={club.id} clubName={club.name} />
+                )}
                 {activeTab === 'Dashboard' && userIsManager && (
                     <DashboardTab club={club} onUpdate={fetchClub} />
                 )}
                 {activeTab === 'Settings' && userIsManager && (
-                    <SettingsTab club={club} onUpdate={fetchClub} />
+                    <SettingsTab club={club} onUpdate={fetchClub} isClubHead={userIsClubHead} />
                 )}
                 {activeTab === 'Contact' && !isMember && (
                     <ContactTab club={club} />
@@ -776,7 +781,8 @@ const DashboardTab = ({ club, onUpdate }) => {
 
 // ─── Settings Tab (Managers) ──────────────────────────────────
 
-const SettingsTab = ({ club, onUpdate }) => {
+const SettingsTab = ({ club, onUpdate, isClubHead }) => {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         name: club.name || '',
         description: club.description || '',
@@ -784,6 +790,8 @@ const SettingsTab = ({ club, onUpdate }) => {
         cover_url: club.cover_url || '',
     });
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [confirmName, setConfirmName] = useState('');
     const [message, setMessage] = useState('');
 
     const handleSubmit = async (e) => {
@@ -806,8 +814,27 @@ const SettingsTab = ({ club, onUpdate }) => {
         }
     };
 
+    const handleDeleteClub = async () => {
+        if (confirmName !== club.name) {
+            alert('Club name does not match. Type the exact name to confirm deletion.');
+            return;
+        }
+        if (!confirm(`Permanently delete "${club.name}"? All events, members, and data will be removed.`)) return;
+
+        setDeleting(true);
+        try {
+            await axiosInstance.delete(`/clubs/${club.id}`);
+            navigate('/clubs');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to delete club');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     return (
-        <div className="bg-white rounded-xl shadow-sm border p-6 max-w-2xl">
+        <div className="space-y-6 max-w-2xl">
+        <div className="bg-white rounded-xl shadow-sm border p-6">
             <h2 className="text-lg font-semibold mb-4">Club Settings</h2>
             {message && (
                 <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
@@ -840,6 +867,38 @@ const SettingsTab = ({ club, onUpdate }) => {
                     {saving ? 'Saving...' : 'Save Changes'}
                 </button>
             </form>
+        </div>
+
+        {isClubHead && (
+            <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+                <h2 className="text-lg font-semibold text-red-700 mb-2">Danger Zone</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                    Deleting this club permanently removes all members, events, gallery, budget records, and chat history. This cannot be undone.
+                </p>
+                <div className="space-y-3">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Type <strong>{club.name}</strong> to confirm
+                        </label>
+                        <input
+                            type="text"
+                            value={confirmName}
+                            onChange={(e) => setConfirmName(e.target.value)}
+                            placeholder={club.name}
+                            className="w-full px-3 py-2 border border-red-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleDeleteClub}
+                        disabled={deleting || confirmName !== club.name}
+                        className="px-6 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {deleting ? 'Deleting...' : 'Delete Club Permanently'}
+                    </button>
+                </div>
+            </div>
+        )}
         </div>
     );
 };

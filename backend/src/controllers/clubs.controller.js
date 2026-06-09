@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { notifyClubFollowed } from '../services/notification.service.js';
 
 const MANAGER_ROLES = ['CORE_COMMITTEE', 'EXECUTIVE'];
 const ADMIN_ROLES = ['CORE_COMMITTEE'];
@@ -182,6 +183,66 @@ export const updateClub = async (req, res) => {
     }
 };
 
+export const deleteClub = async (req, res) => {
+    const { id } = req.params;
+    if (!UUID_REGEX.test(id)) {
+        return res.status(400).json({ error: 'Invalid club ID format' });
+    }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !ADMIN_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only core committee can delete the club' });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const club = await client.query('SELECT id FROM student.Clubs WHERE id = $1', [id]);
+        if (club.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Club not found' });
+        }
+
+        const eventIds = (await client.query(
+            'SELECT id FROM student.Events WHERE club_id = $1',
+            [id]
+        )).rows.map((r) => r.id);
+
+        if (eventIds.length > 0) {
+            await client.query(
+                `DELETE FROM student.Messages
+                 WHERE group_type = 'EVENT' AND receiver_id = ANY($1::uuid[])`,
+                [eventIds]
+            );
+            await client.query(
+                `DELETE FROM student.Notifications
+                 WHERE reference_type = 'EVENT' AND reference_id = ANY($1::uuid[])`,
+                [eventIds]
+            );
+        }
+
+        await client.query(
+            "DELETE FROM student.Messages WHERE group_type = 'CLUB' AND receiver_id = $1",
+            [id]
+        );
+        await client.query(
+            "DELETE FROM student.Notifications WHERE reference_type = 'CLUB' AND reference_id = $1",
+            [id]
+        );
+
+        await client.query('DELETE FROM student.Clubs WHERE id = $1', [id]);
+        await client.query('COMMIT');
+        res.json({ message: 'Club deleted successfully' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(error);
+        res.status(500).json({ error: 'Server error deleting club' });
+    } finally {
+        client.release();
+    }
+};
+
 // ─── Members ─────────────────────────────────────────────────
 
 export const getClubMembers = async (req, res) => {
@@ -298,11 +359,31 @@ export const followClub = async (req, res) => {
         return res.status(400).json({ error: 'Invalid club ID format' });
     }
     try {
-        await pool.query(
-            'INSERT INTO student.Club_Followers (user_id, club_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        const insertResult = await pool.query(
+            'INSERT INTO student.Club_Followers (user_id, club_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *',
             [req.user.userId, id]
         );
+
+        if (insertResult.rows.length === 0) {
+            return res.json({ message: 'Already following this club' });
+        }
+
         await pool.query('UPDATE student.Clubs SET follower_count = follower_count + 1 WHERE id = $1', [id]);
+
+        const club = (await pool.query('SELECT name FROM student.Clubs WHERE id = $1', [id])).rows[0];
+        const follower = (await pool.query(
+            'SELECT username, full_name FROM student.users WHERE id = $1',
+            [req.user.userId]
+        )).rows[0];
+        const io = req.app.get('io');
+        if (club && follower) {
+            await notifyClubFollowed(io, id, club.name, {
+                userId: req.user.userId,
+                username: follower.username,
+                full_name: follower.full_name,
+            });
+        }
+
         res.json({ message: 'Club followed' });
     } catch (error) {
         console.error(error);

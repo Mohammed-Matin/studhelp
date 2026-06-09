@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { getUser } from '../utils/auth';
 
 const EventPage = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showTeamForm, setShowTeamForm] = useState(false);
@@ -95,6 +96,16 @@ const EventPage = () => {
             fetchEvent();
         } catch (err) {
             alert(err.response?.data?.error || 'Failed to delete team');
+        }
+    };
+
+    const handleDeleteEvent = async () => {
+        if (!confirm(`Permanently delete "${event.title}"? This cannot be undone.`)) return;
+        try {
+            await axiosInstance.delete(`/events/${id}`);
+            navigate(`/clubs/${event.club_id}`);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to delete event');
         }
     };
 
@@ -311,12 +322,21 @@ const EventPage = () => {
                                 {(event.status === 'UPCOMING' || event.status === 'POSTPONED') && (
                                     <button
                                         onClick={handleCancel}
-                                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+                                        className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700"
                                     >
                                         Cancel Event
                                     </button>
                                 )}
+                                <button
+                                    onClick={handleDeleteEvent}
+                                    className="w-full px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 mt-2"
+                                >
+                                    Delete Event Permanently
+                                </button>
                             </div>
+                            <p className="text-xs text-gray-400 mt-3">
+                                Cancel keeps the event visible as cancelled. Delete removes it completely.
+                            </p>
                         </div>
                     )}
 

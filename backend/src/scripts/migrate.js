@@ -171,6 +171,18 @@ async function migrate() {
                 is_anonymous BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )`,
+            `CREATE TABLE IF NOT EXISTS student.Notifications (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+                type VARCHAR(50) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                message TEXT NOT NULL,
+                link VARCHAR(500),
+                reference_type VARCHAR(50),
+                reference_id UUID,
+                is_read BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )`,
         ];
 
         for (const tableSql of tables) {
@@ -212,6 +224,8 @@ async function migrate() {
             'CREATE INDEX IF NOT EXISTS idx_event_registrations_event ON student.Event_Registrations(event_id)',
             'CREATE INDEX IF NOT EXISTS idx_teams_event_id ON student.Teams(event_id)',
             'CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON student.Messages(receiver_id)',
+            'CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON student.Notifications(user_id)',
+            'CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON student.Notifications(user_id, is_read)',
         ];
 
         for (const indexSql of indexes) {

@@ -6,6 +6,7 @@ import {
     sendDMMessage,
     getGroupMessages,
     sendGroupMessage,
+    getUserClubChats,
     getClubRoleGroups,
 } from '../controllers/messages.controller.js';
 import { authenticateUser } from '../middlewares/auth.middleware.js';
@@ -13,6 +14,7 @@ import { authenticateUser } from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 router.get('/search', authenticateUser, searchUsers);
+router.get('/clubs', authenticateUser, getUserClubChats);
 router.get('/conversations', authenticateUser, getDMConversations);
 router.get('/dm/:userId', authenticateUser, getDMThread);
 router.post('/dm', authenticateUser, sendDMMessage);

@@ -239,3 +239,20 @@ CREATE INDEX idx_events_club_id ON student.Events(club_id);
 CREATE INDEX idx_events_status ON student.Events(status);
 CREATE INDEX idx_teams_event_id ON student.Teams(event_id);
 CREATE INDEX idx_messages_receiver_id ON student.Messages(receiver_id);
+
+-- Notifications
+CREATE TABLE student.Notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    link VARCHAR(500),
+    reference_type VARCHAR(50),
+    reference_id UUID,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notifications_user_id ON student.Notifications(user_id);
+CREATE INDEX idx_notifications_user_unread ON student.Notifications(user_id, is_read);

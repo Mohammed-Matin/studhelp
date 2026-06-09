@@ -4,6 +4,7 @@ import {
     getClubs,
     getClubById,
     updateClub,
+    deleteClub,
     getClubMembers,
     addMember,
     updateMemberRole,
@@ -52,6 +53,7 @@ router.post('/', authenticateUser, validateBody(createClubSchema), createClub);
 router.get('/', getClubs);
 router.get('/:id', authenticateUser, getClubById);
 router.patch('/:id', authenticateUser, validateBody(updateClubSchema), updateClub);
+router.delete('/:id', authenticateUser, deleteClub);
 
 // ─── Members ─────────────────────────────────────────────────
 router.get('/:id/members', authenticateUser, getClubMembers);

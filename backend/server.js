@@ -23,6 +23,11 @@ io.on('connection', (socket) => {
         console.log(`Socket ${socket.id} joined DM room: dm_${userId}`);
     });
 
+    socket.on('join_notifications', (userId) => {
+        socket.join(`notifications_${userId}`);
+        console.log(`Socket ${socket.id} joined notifications room: notifications_${userId}`);
+    });
+
     socket.on('join_group', ({ groupType, groupId }) => {
         const room = `${groupType}_${groupId}`;
         socket.join(room);

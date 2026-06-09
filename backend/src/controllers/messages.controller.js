@@ -184,6 +184,31 @@ export const sendGroupMessage = async (req, res) => {
     }
 };
 
+// ─── User's Club Chats ────────────────────────────────────────
+
+export const getUserClubChats = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT c.id, c.name, c.logo_url, cm.role_tag as user_role,
+                    (SELECT content FROM student.Messages
+                     WHERE receiver_id = c.id AND is_group_chat = true AND group_type = 'CLUB'
+                     ORDER BY timestamp DESC LIMIT 1) as last_message,
+                    (SELECT timestamp FROM student.Messages
+                     WHERE receiver_id = c.id AND is_group_chat = true AND group_type = 'CLUB'
+                     ORDER BY timestamp DESC LIMIT 1) as last_message_at
+             FROM student.Clubs c
+             JOIN student.Club_Members cm ON cm.club_id = c.id
+             WHERE cm.user_id = $1
+             ORDER BY last_message_at DESC NULLS LAST, c.name ASC`,
+            [req.user.userId]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error retrieving club chats' });
+    }
+};
+
 // ─── Club Role-Based Groups ──────────────────────────────────
 
 export const getClubRoleGroups = async (req, res) => {
