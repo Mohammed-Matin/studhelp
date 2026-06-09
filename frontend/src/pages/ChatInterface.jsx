@@ -5,6 +5,7 @@ import axiosInstance from '../api/axiosInstance';
 import { getUser } from '../utils/auth';
 
 const SOCKET_URL = config.apiBaseUrl.replace('/api/v1', '');
+const RECENT_IDS = new Set();
 
 const ChatInterface = () => {
     const socketRef = useRef(null);
@@ -60,6 +61,13 @@ const ChatInterface = () => {
         });
 
         socketRef.current.on('receive_message', (messageData) => {
+            if (RECENT_IDS.has(messageData.id)) return;
+            RECENT_IDS.add(messageData.id);
+            if (RECENT_IDS.size > 200) {
+                const iter = RECENT_IDS.values().next();
+                if (iter.value) RECENT_IDS.delete(iter.value);
+            }
+
             const chat = activeChatRef.current;
             if (chat) {
                 const isRelevant = chat.type === 'dm'
@@ -75,6 +83,7 @@ const ChatInterface = () => {
         fetchConversations();
 
         return () => {
+            RECENT_IDS.clear();
             socketRef.current.disconnect();
         };
     }, [fetchConversations, user?.id]);
@@ -98,32 +107,8 @@ const ChatInterface = () => {
                     receiver_id: activeChat.id,
                     content,
                 });
-                setMessages((prev) => [...prev, {
-                    id: Date.now(),
-                    sender_id: user.id,
-                    sender_name: user.username,
-                    content,
-                    timestamp: new Date().toISOString(),
-                }]);
             } else {
-                const room = `${activeChat.type}_${activeChat.id}`;
                 await axiosInstance.post(`/messages/group/${activeChat.type}/${activeChat.id}`, { content, is_anonymous });
-                socketRef.current.emit('send_message', {
-                    room,
-                    senderId: user.id,
-                    content,
-                    isGroupChat: true,
-                    groupType: activeChat.type,
-                    is_anonymous,
-                });
-                setMessages((prev) => [...prev, {
-                    id: Date.now(),
-                    sender_id: user.id,
-                    sender_name: is_anonymous ? 'Anonymous' : user.username,
-                    is_anonymous,
-                    content,
-                    timestamp: new Date().toISOString(),
-                }]);
             }
         } catch (err) {
             console.error('Error sending message:', err);
