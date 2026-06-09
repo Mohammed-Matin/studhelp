@@ -31,6 +31,9 @@ async function hasPendingRequest(userId, clubId) {
 
 export const createClub = async (req, res) => {
     const { name, description } = req.body;
+    if (!name?.trim()) {
+        return res.status(422).json({ error: 'Club name is required' });
+    }
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -125,12 +128,18 @@ export const getClubById = async (req, res) => {
 
         const pendingRequest = await hasPendingRequest(req.user.userId, id);
 
+        const events = (await pool.query(
+            `SELECT id, title, description, start_time, end_time, status, participation_type, banner_url
+             FROM student.Events WHERE club_id = $1 ORDER BY start_time DESC`,
+            [id]
+        )).rows;
+
         res.json({
             ...club,
             userRole: role,
             isFollower: following,
             pendingRequest,
-            events: [],
+            events,
             gallery,
         });
     } catch (error) {
@@ -144,6 +153,12 @@ export const updateClub = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid club ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can update club details' });
+    }
+
     const { name, description, logo_url, cover_url } = req.body;
     try {
         const result = await pool.query(
@@ -364,6 +379,12 @@ export const getJoinRequests = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid club ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can view join requests' });
+    }
+
     try {
         const result = await pool.query(
             `SELECT r.*, u.username, u.full_name, u.email
@@ -385,7 +406,17 @@ export const handleJoinRequest = async (req, res) => {
     if (!UUID_REGEX.test(id) || !UUID_REGEX.test(requestId)) {
         return res.status(400).json({ error: 'Invalid ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can handle join requests' });
+    }
+
     const { status } = req.body;
+    if (!['APPROVED', 'REJECTED'].includes(status)) {
+        return res.status(400).json({ error: 'Status must be APPROVED or REJECTED' });
+    }
+
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -517,6 +548,12 @@ export const getFollowerMessages = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid club ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can view follower messages' });
+    }
+
     try {
         const result = await pool.query(
             `SELECT m.*, u.username, u.full_name
@@ -538,6 +575,12 @@ export const replyToFollowerMessage = async (req, res) => {
     if (!UUID_REGEX.test(id) || !UUID_REGEX.test(messageId)) {
         return res.status(400).json({ error: 'Invalid ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can reply to messages' });
+    }
+
     const { admin_reply } = req.body;
     try {
         const result = await pool.query(
@@ -690,6 +733,12 @@ export const addBudgetTransaction = async (req, res) => {
     if (!UUID_REGEX.test(id)) {
         return res.status(400).json({ error: 'Invalid club ID format' });
     }
+
+    const requesterRole = await getUserClubRole(req.user.userId, id);
+    if (!requesterRole || !MANAGER_ROLES.includes(requesterRole)) {
+        return res.status(403).json({ error: 'Only club managers can add budget transactions' });
+    }
+
     const { type, category, amount, description } = req.body;
     const client = await pool.connect();
     try {

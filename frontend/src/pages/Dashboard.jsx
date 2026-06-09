@@ -45,16 +45,18 @@ const Dashboard = () => {
 
             {/* Quick Actions */}
             <div className="flex gap-4 mb-8 flex-wrap">
-                <Link to="/calendar"
+                <Link to="/clubs"
                       className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-sm">
+                    Browse Clubs
+                </Link>
+                <Link to="/clubs/new"
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition shadow-sm">
+                    Create Club
+                </Link>
+                <Link to="/calendar"
+                      className="px-6 py-3 bg-white border text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition shadow-sm">
                     View Calendar
                 </Link>
-                {myClubs.length > 0 && (
-                    <Link to={`/clubs/${myClubs[0].id}`}
-                          className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition shadow-sm">
-                        My Club
-                    </Link>
-                )}
             </div>
 
             {/* My Clubs */}
@@ -65,7 +67,11 @@ const Dashboard = () => {
                 ) : myClubs.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-sm border p-8 text-center">
                         <p className="text-gray-500 mb-3">You haven't joined any clubs yet</p>
-                        <span className="text-gray-400 text-sm">Clubs will appear here once you join or create one</span>
+                        <div className="flex gap-3 justify-center">
+                            <Link to="/clubs" className="text-blue-600 hover:underline font-medium text-sm">Browse Clubs</Link>
+                            <span className="text-gray-300">|</span>
+                            <Link to="/clubs/new" className="text-indigo-600 hover:underline font-medium text-sm">Create a Club</Link>
+                        </div>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

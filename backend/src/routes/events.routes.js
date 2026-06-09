@@ -17,16 +17,17 @@ import {
     deleteEvent,
 } from '../controllers/events.controller.js';
 import { authenticateUser } from '../middlewares/auth.middleware.js';
+import { validateBody, createEventSchema, updateEventSchema } from '../validators/events.validators.js';
 
 const router = express.Router();
 
 router.get('/calendar', authenticateUser, getCalendarEvents);
 router.get('/clashes', authenticateUser, getEventClashes);
 
-router.post('/', authenticateUser, createEvent);
+router.post('/', authenticateUser, validateBody(createEventSchema), createEvent);
 router.get('/', getEvents);
 router.get('/:id', authenticateUser, getEventById);
-router.patch('/:id', authenticateUser, updateEvent);
+router.patch('/:id', authenticateUser, validateBody(updateEventSchema), updateEvent);
 router.delete('/:id', authenticateUser, deleteEvent);
 router.patch('/:id/postpone', authenticateUser, postponeEvent);
 router.patch('/:id/cancel', authenticateUser, cancelEvent);

@@ -4,6 +4,9 @@ import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import ClubPage from '../pages/ClubPage';
+import ClubsListPage from '../pages/ClubsListPage';
+import CreateClubPage from '../pages/CreateClubPage';
+import CreateEventPage from '../pages/CreateEventPage';
 import EventPage from '../pages/EventPage';
 import CalendarView from '../pages/CalendarView';
 import ChatInterface from '../pages/ChatInterface';
@@ -22,6 +25,7 @@ const AppLayout = ({ children }) => (
             <Link to="/dashboard" className="font-bold text-xl text-blue-600">StudHelp</Link>
             <div className="flex gap-4 items-center">
                 <Link to="/dashboard" className="text-gray-600 hover:text-blue-600">Dashboard</Link>
+                <Link to="/clubs" className="text-gray-600 hover:text-blue-600">Clubs</Link>
                 <Link to="/calendar" className="text-gray-600 hover:text-blue-600">Calendar</Link>
                 <Link to="/profile" className="text-gray-600 hover:text-blue-600">Profile</Link>
                 {isAdmin() && (
@@ -72,6 +76,30 @@ const AppRouter = () => {
                     element={
                         <ProtectedRoute>
                             <AppLayout><CalendarView /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/clubs"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><ClubsListPage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/clubs/new"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><CreateClubPage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/clubs/:clubId/events/new"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><CreateEventPage /></AppLayout>
                         </ProtectedRoute>
                     }
                 />
