@@ -71,17 +71,17 @@ const ClubChatPanel = ({ clubId, clubName, compact = false }) => {
     const isMe = (senderId) => senderId === user?.id;
 
     return (
-        <div className={`flex flex-col bg-white rounded-xl shadow-sm border overflow-hidden ${compact ? 'h-[420px]' : 'h-[calc(100vh-16rem)]'}`}>
-            <div className="px-4 py-3 border-b bg-gradient-to-r from-indigo-50 to-blue-50">
-                <h3 className="font-semibold text-gray-900">{clubName} — Member Chat</h3>
-                <p className="text-xs text-gray-500">Discuss with fellow club members</p>
+        <div className={`flex flex-col glass-card rounded-xl overflow-hidden glow-border ${compact ? 'h-[420px]' : 'h-[calc(100vh-16rem)]'}`}>
+            <div className="px-4 py-3 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-cyan-900/20">
+                <h3 className="font-display font-semibold text-white">{clubName} — Member Chat</h3>
+                <p className="text-xs text-slate-400">Discuss with fellow club members</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {loading ? (
-                    <p className="text-center text-gray-400 text-sm py-8">Loading messages...</p>
+                    <p className="text-center text-slate-500 text-sm py-8">Loading messages...</p>
                 ) : messages.length === 0 ? (
-                    <p className="text-center text-gray-400 text-sm py-8">
+                    <p className="text-center text-slate-500 text-sm py-8">
                         No messages yet. Start the conversation!
                     </p>
                 ) : (
@@ -94,7 +94,7 @@ const ClubChatPanel = ({ clubId, clubName, compact = false }) => {
                                 className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
                                     isMe(msg.sender_id)
                                         ? 'bg-blue-600 text-white rounded-br-sm'
-                                        : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                                        : 'bg-white/10 text-slate-200 rounded-bl-sm'
                                 }`}
                             >
                                 {!isMe(msg.sender_id) && (
@@ -115,18 +115,18 @@ const ClubChatPanel = ({ clubId, clubName, compact = false }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSend} className="border-t p-3 flex gap-2">
+            <form onSubmit={handleSend} className="border-t border-white/10 p-3 flex gap-2">
                 <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Message club members..."
-                    className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="input-dark flex-1"
                 />
                 <button
                     type="submit"
                     disabled={!input.trim() || sending}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                    className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
                 >
                     Send
                 </button>

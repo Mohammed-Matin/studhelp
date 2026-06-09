@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
@@ -20,28 +20,56 @@ const handleLogout = () => {
     window.location.href = '/login';
 };
 
+const NavLink = ({ to, children }) => {
+    const { pathname } = useLocation();
+    const active = pathname === to || (to !== '/dashboard' && pathname.startsWith(to));
+    return (
+        <Link
+            to={to}
+            className={`text-sm font-medium transition px-3 py-1.5 rounded-lg ${
+                active
+                    ? 'text-white bg-white/10'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+        >
+            {children}
+        </Link>
+    );
+};
+
 const AppLayout = ({ children }) => (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-        <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-            <Link to="/dashboard" className="font-bold text-xl text-blue-600">StudHelp</Link>
-            <div className="flex gap-4 items-center">
-                <Link to="/dashboard" className="text-gray-600 hover:text-blue-600">Dashboard</Link>
-                <Link to="/clubs" className="text-gray-600 hover:text-blue-600">Clubs</Link>
-                <Link to="/calendar" className="text-gray-600 hover:text-blue-600">Calendar</Link>
-                <Link to="/profile" className="text-gray-600 hover:text-blue-600">Profile</Link>
-                {isAdmin() && (
-                    <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600">Admin</Link>
-                )}
-                <Link to="/chat" className="text-gray-600 hover:text-blue-600">Chat</Link>
-                <NotificationBell />
-                <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">
-                    Logout
-                </button>
+    <div className="min-h-screen flex flex-col bg-[#07070f]">
+        <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#07070f]/80 backdrop-blur-xl">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <Link to="/dashboard" className="font-display font-bold text-xl tracking-tight">
+                    <span className="text-gradient">Stud</span>
+                    <span className="text-white">Help</span>
+                </Link>
+                <div className="flex gap-1 items-center">
+                    <NavLink to="/dashboard">Home</NavLink>
+                    <NavLink to="/clubs">Clubs</NavLink>
+                    <NavLink to="/calendar">Events</NavLink>
+                    <NavLink to="/chat">Chat</NavLink>
+                    <NavLink to="/profile">Profile</NavLink>
+                    {isAdmin() && <NavLink to="/admin/dashboard">Admin</NavLink>}
+                    <div className="ml-2 pl-2 border-l border-white/10">
+                        <NotificationBell />
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="ml-2 text-sm text-red-400 hover:text-red-300 font-medium px-3 py-1.5"
+                    >
+                        Logout
+                    </button>
+                </div>
             </div>
         </nav>
         <main className="flex-1">
             {children}
         </main>
+        <footer className="border-t border-white/5 py-6 text-center text-xs text-slate-600">
+            © {new Date().getFullYear()} StudHelp • SVNIT Surat • Built for campus innovators
+        </footer>
     </div>
 );
 
@@ -53,90 +81,17 @@ const AppRouter = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<Navigate to="/login" replace />} />
 
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><Dashboard /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/student/dashboard"
-                    element={<Navigate to="/dashboard" replace />}
-                />
-                <Route
-                    path="/admin/dashboard"
-                    element={
-                        <ProtectedRoute requireAdmin>
-                            <AppLayout><AdminDashboard /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/calendar"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><CalendarView /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/clubs"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><ClubsListPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/clubs/new"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><CreateClubPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/clubs/:clubId/events/new"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><CreateEventPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/clubs/:id"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><ClubPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/events/:id"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><EventPage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/profile"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><ProfilePage /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/chat"
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout><ChatInterface /></AppLayout>
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+                <Route path="/student/dashboard" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/admin/dashboard" element={<ProtectedRoute requireAdmin><AppLayout><AdminDashboard /></AppLayout></ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute><AppLayout><CalendarView /></AppLayout></ProtectedRoute>} />
+                <Route path="/clubs" element={<ProtectedRoute><AppLayout><ClubsListPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/clubs/new" element={<ProtectedRoute><AppLayout><CreateClubPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/clubs/:clubId/events/new" element={<ProtectedRoute><AppLayout><CreateEventPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/clubs/:id" element={<ProtectedRoute><AppLayout><ClubPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/events/:id" element={<ProtectedRoute><AppLayout><EventPage /></AppLayout></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><AppLayout><ProfilePage /></AppLayout></ProtectedRoute>} />
+                <Route path="/chat" element={<ProtectedRoute><AppLayout><ChatInterface /></AppLayout></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </BrowserRouter>

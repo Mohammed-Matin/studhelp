@@ -111,7 +111,7 @@ const NotificationBell = () => {
         <div className="relative" ref={panelRef}>
             <button
                 onClick={handleToggle}
-                className="relative p-2 text-gray-600 hover:text-blue-600 transition rounded-lg hover:bg-gray-100"
+                className="relative p-2 text-slate-400 hover:text-white transition rounded-lg hover:bg-white/10"
                 aria-label="Notifications"
             >
                 <Bell className="w-5 h-5" />
@@ -123,13 +123,13 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border rounded-xl shadow-xl z-50 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-                        <h3 className="font-semibold text-sm">Notifications</h3>
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-card rounded-xl shadow-xl z-50 overflow-hidden glow-border">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                        <h3 className="font-semibold text-sm text-white">Notifications</h3>
                         {unreadCount > 0 && (
                             <button
                                 onClick={handleMarkAllRead}
-                                className="text-xs text-blue-600 hover:underline"
+                                className="text-xs text-cyan-400 hover:underline"
                             >
                                 Mark all read
                             </button>
@@ -138,17 +138,17 @@ const NotificationBell = () => {
 
                     <div className="max-h-96 overflow-y-auto">
                         {loading ? (
-                            <p className="text-center text-gray-400 text-sm py-8">Loading...</p>
+                            <p className="text-center text-slate-500 text-sm py-8">Loading...</p>
                         ) : notifications.length === 0 ? (
-                            <p className="text-center text-gray-400 text-sm py-8">No notifications yet</p>
+                            <p className="text-center text-slate-500 text-sm py-8">No notifications yet</p>
                         ) : (
                             notifications.map((n) => (
                                 <Link
                                     key={n.id}
                                     to={n.link || '#'}
                                     onClick={() => handleNotificationClick(n)}
-                                    className={`block px-4 py-3 border-b hover:bg-gray-50 transition ${
-                                        !n.is_read ? 'bg-blue-50/50' : ''
+                                    className={`block px-4 py-3 border-b border-white/5 hover:bg-white/5 transition ${
+                                        !n.is_read ? 'bg-purple-500/10' : ''
                                     }`}
                                 >
                                     <div className="flex gap-3">
@@ -156,11 +156,11 @@ const NotificationBell = () => {
                                             {TYPE_ICONS[n.type] || '🔔'}
                                         </span>
                                         <div className="min-w-0 flex-1">
-                                            <p className={`text-sm ${!n.is_read ? 'font-semibold' : 'font-medium'} text-gray-900`}>
+                                            <p className={`text-sm ${!n.is_read ? 'font-semibold' : 'font-medium'} text-white`}>
                                                 {n.title}
                                             </p>
-                                            <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">{n.message}</p>
-                                            <p className="text-xs text-gray-400 mt-1">
+                                            <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
+                                            <p className="text-xs text-slate-500 mt-1">
                                                 {new Date(n.created_at).toLocaleString()}
                                             </p>
                                         </div>

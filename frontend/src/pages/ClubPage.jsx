@@ -10,6 +10,7 @@ import {
     isClubHead,
     canManageGallery,
 } from '../utils/clubRoles';
+import { getClubCover, getClubLogo, getEventBanner, SUGGESTED_COVERS } from '../utils/images';
 
 const BASE_TABS = ['Gallery', 'Members', 'Events', 'About'];
 
@@ -71,68 +72,60 @@ const ClubPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-gray-500 text-lg">Loading club...</div>
+            <div className="min-h-screen bg-[#07070f] flex items-center justify-center">
+                <div className="text-slate-400 text-lg animate-pulse">Loading club...</div>
             </div>
         );
     }
 
     if (!club) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-gray-500 text-lg">Club not found</div>
+            <div className="min-h-screen bg-[#07070f] flex items-center justify-center">
+                <div className="text-slate-400 text-lg">Club not found</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#07070f]">
             {/* Cover Image */}
-            <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden">
-                {club.cover_url && (
-                    <img src={club.cover_url} alt="" className="w-full h-full object-cover opacity-60" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="relative h-72 md:h-96 overflow-hidden">
+                <img src={getClubCover(club)} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/50 to-purple-900/30" />
+                <div className="absolute inset-0 bg-grid opacity-30" />
             </div>
 
             {/* Club Info Section */}
             <div className="max-w-6xl mx-auto px-4 -mt-20 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
                     {/* Logo */}
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-xl border-4 border-white shadow-lg overflow-hidden bg-white flex-shrink-0">
-                        {club.logo_url ? (
-                            <img src={club.logo_url} alt={club.name} className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">
-                                {club.name?.charAt(0)?.toUpperCase()}
-                            </div>
-                        )}
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-purple-500/40 shadow-2xl shadow-purple-500/20 overflow-hidden flex-shrink-0 ring-2 ring-cyan-400/20">
+                        <img src={getClubLogo(club)} alt={club.name} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Name & Stats */}
                     <div className="flex-1 pb-2">
-                        <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-sm">{club.name}</h1>
-                        <p className="text-white/80 text-sm mt-1 line-clamp-2">{club.description}</p>
-                        <div className="flex gap-6 mt-3 text-white/90 text-sm">
-                            <span><strong className="text-white">{club.member_count || 0}</strong> members</span>
-                            <span><strong className="text-white">{club.follower_count || 0}</strong> followers</span>
+                        <p className="text-xs tracking-[0.2em] uppercase text-cyan-400 mb-1">SVNIT Club</p>
+                        <h1 className="font-display text-3xl md:text-4xl font-bold text-white drop-shadow-lg">{club.name}</h1>
+                        <p className="text-slate-300 text-sm mt-2 line-clamp-2 max-w-xl">{club.description}</p>
+                        <div className="flex gap-6 mt-4 text-sm">
+                            <span className="glass-card px-3 py-1 rounded-full text-cyan-300"><strong className="text-white">{club.member_count || 0}</strong> members</span>
+                            <span className="glass-card px-3 py-1 rounded-full text-purple-300"><strong className="text-white">{club.follower_count || 0}</strong> followers</span>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 pb-2">
                         {isMember ? (
-                            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium capitalize">
+                            <span className="px-4 py-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-sm font-medium capitalize">
                                 {formatRole(club.userRole)}
                             </span>
                         ) : (
                             <>
                                 <button
                                     onClick={handleFollow}
-                                    className={`px-6 py-2 rounded-lg font-medium text-sm transition ${
-                                        club.isFollower
-                                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    className={`px-5 py-2 rounded-lg font-medium text-sm transition btn-ghost ${
+                                        club.isFollower ? 'border-cyan-500/50 text-cyan-300' : ''
                                     }`}
                                 >
                                     {club.isFollower ? 'Following' : 'Follow'}
@@ -140,21 +133,18 @@ const ClubPage = () => {
                                 <button
                                     onClick={() => setShowJoinModal(true)}
                                     disabled={club.pendingRequest}
-                                    className={`px-6 py-2 rounded-lg font-medium text-sm transition ${
+                                    className={`px-5 py-2 rounded-lg font-medium text-sm transition ${
                                         club.pendingRequest
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            ? 'opacity-40 cursor-not-allowed btn-ghost'
+                                            : 'btn-primary'
                                     }`}
                                 >
-                                    {club.pendingRequest ? 'Request Pending' : 'Request to Join'}
+                                    {club.pendingRequest ? 'Request Pending' : 'Join Club'}
                                 </button>
                             </>
                         )}
                         {userIsManager && (
-                            <Link
-                                to={`/clubs/${id}/events/new`}
-                                className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium text-sm hover:bg-purple-700 transition"
-                            >
+                            <Link to={`/clubs/${id}/events/new`} className="btn-primary text-sm">
                                 + Host Event
                             </Link>
                         )}
@@ -163,16 +153,16 @@ const ClubPage = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="max-w-6xl mx-auto px-4 mt-8 border-b bg-white rounded-t-xl shadow-sm">
-                <div className="flex gap-0 -mb-px overflow-x-auto">
+            <div className="max-w-6xl mx-auto px-4 mt-8">
+                <div className="flex gap-1 overflow-x-auto glass-card rounded-xl p-1.5">
                     {displayTabs.map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-3 text-sm font-medium border-b-2 transition whitespace-nowrap ${
+                            className={`px-5 py-2.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
                                 activeTab === tab
-                                    ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'bg-purple-600/30 text-purple-200 border border-purple-500/40'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                             }`}
                         >
                             {tab}
@@ -435,7 +425,7 @@ const MembersTab = ({ club, isClubHead, onUpdate }) => {
     return (
         <div className="space-y-6">
             {isClubHead && (
-                <div className="bg-white rounded-xl shadow-sm border p-4">
+                <div className="glass-card rounded-xl p-4">
                     {showAddForm ? (
                         <form onSubmit={handleAddMember} className="space-y-3">
                             <div>
@@ -569,11 +559,11 @@ const EventsTab = ({ club, isManager }) => {
     }, [club.id, fetchEvents]);
 
     const statusColors = {
-        UPCOMING: 'bg-blue-100 text-blue-800',
-        LIVE: 'bg-green-100 text-green-800',
-        PAST: 'bg-gray-100 text-gray-600',
-        POSTPONED: 'bg-yellow-100 text-yellow-800',
-        CANCELLED: 'bg-red-100 text-red-800',
+        UPCOMING: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
+        LIVE: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+        PAST: 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
+        POSTPONED: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+        CANCELLED: 'bg-red-500/20 text-red-300 border border-red-500/30',
     };
 
     const filtered = filter === 'ALL' ? events : events.filter((e) => e.status === filter);
@@ -589,7 +579,7 @@ const EventsTab = ({ club, isManager }) => {
                             key={s}
                             onClick={() => setFilter(s)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                                filter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                filter === s ? 'bg-purple-600/40 text-purple-200 border border-purple-500/40' : 'text-slate-400 hover:bg-white/5'
                             }`}
                         >
                             {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
@@ -622,21 +612,20 @@ const EventsTab = ({ club, isManager }) => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filtered.map((event) => (
-                        <Link key={event.id} to={`/events/${event.id}`} className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition block group">
-                            {event.banner_url && (
-                                <div className="h-32 bg-gray-100 overflow-hidden">
-                                    <img src={event.banner_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition" />
-                                </div>
-                            )}
+                        <Link key={event.id} to={`/events/${event.id}`} className="glass-card rounded-xl overflow-hidden hover:scale-[1.01] transition-all block group glow-border">
+                            <div className="h-36 overflow-hidden relative">
+                                <img src={getEventBanner(event)} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f1a] to-transparent" />
+                            </div>
                             <div className="p-5">
                                 <div className="flex items-start justify-between mb-2">
-                                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition">{event.title}</h3>
+                                    <h3 className="font-display font-semibold text-white group-hover:text-purple-300 transition">{event.title}</h3>
                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${statusColors[event.status] || ''}`}>
                                         {event.status}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{event.description || ''}</p>
-                                <div className="flex items-center gap-4 text-xs text-gray-400">
+                                <p className="text-sm text-slate-400 line-clamp-2 mb-3">{event.description || ''}</p>
+                                <div className="flex items-center gap-4 text-xs text-slate-500">
                                     <span>{new Date(event.start_time).toLocaleDateString()}</span>
                                     <span>{event.participation_type}</span>
                                 </div>
@@ -653,7 +642,7 @@ const EventsTab = ({ club, isManager }) => {
 
 const AboutTab = ({ club }) => {
     return (
-        <div className="bg-white rounded-xl shadow-sm border p-6 max-w-3xl">
+        <div className="glass-card rounded-xl p-6 max-w-3xl">
             <h2 className="text-lg font-semibold mb-3">About</h2>
             <p className="text-gray-600 leading-relaxed">{club.description || 'No description provided.'}</p>
             <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
@@ -712,7 +701,7 @@ const DashboardTab = ({ club, onUpdate }) => {
         <div className="space-y-6">
             {/* Budget Overview */}
             {dashboard.budget && (
-                <div className="bg-white rounded-xl shadow-sm border p-6">
+                <div className="glass-card rounded-xl p-6">
                     <h2 className="text-lg font-semibold mb-4">Budget Overview</h2>
                     <div className="grid grid-cols-3 gap-4">
                         <div className="bg-blue-50 rounded-lg p-4 text-center">
@@ -732,7 +721,7 @@ const DashboardTab = ({ club, onUpdate }) => {
             )}
 
             {/* Pending Requests */}
-            <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="glass-card rounded-xl p-6">
                 <h2 className="text-lg font-semibold mb-4">
                     Join Requests
                     {dashboard.pendingRequests > 0 && (
@@ -744,7 +733,7 @@ const DashboardTab = ({ club, onUpdate }) => {
 
             {/* Recent Events */}
             {dashboard.recentEvents?.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border p-6">
+                <div className="glass-card rounded-xl p-6">
                     <h2 className="text-lg font-semibold mb-4">Recent Events</h2>
                     <div className="space-y-2">
                         {dashboard.recentEvents.map((ev) => (
@@ -766,11 +755,11 @@ const DashboardTab = ({ club, onUpdate }) => {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl shadow-sm border p-4 text-center">
+                <div className="glass-card rounded-xl p-4 text-center">
                     <p className="text-2xl font-bold text-gray-800">{club.member_count || 0}</p>
                     <p className="text-sm text-gray-500 mt-1">Members</p>
                 </div>
-                <div className="bg-white rounded-xl shadow-sm border p-4 text-center">
+                <div className="glass-card rounded-xl p-4 text-center">
                     <p className="text-2xl font-bold text-gray-800">{club.follower_count || 0}</p>
                     <p className="text-sm text-gray-500 mt-1">Followers</p>
                 </div>
@@ -834,43 +823,59 @@ const SettingsTab = ({ club, onUpdate, isClubHead }) => {
 
     return (
         <div className="space-y-6 max-w-2xl">
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h2 className="text-lg font-semibold mb-4">Club Settings</h2>
+        <div className="glass-card rounded-xl p-6">
+            <h2 className="font-display text-lg font-semibold text-white mb-1">Club Settings</h2>
+            <p className="text-xs text-slate-500 mb-4">Image URLs are saved to the database and shown across the platform.</p>
             {message && (
-                <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes('success') ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/10 text-red-300 border border-red-500/30'}`}>
                     {message}
+                </div>
+            )}
+            {(form.cover_url || form.logo_url) && (
+                <div className="mb-4 rounded-xl overflow-hidden h-32 relative">
+                    <img src={form.cover_url || getClubCover({ ...club, cover_url: form.cover_url })} alt="" className="w-full h-full object-cover opacity-60" />
+                    <div className="absolute bottom-2 left-2 w-12 h-12 rounded-lg overflow-hidden border-2 border-purple-500/50">
+                        <img src={form.logo_url || getClubLogo(club)} alt="" className="w-full h-full object-cover" />
+                    </div>
                 </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Club Name</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Club Name</label>
                     <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                           className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required />
+                           className="input-dark" required />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Description</label>
                     <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                              rows={4} className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                              rows={4} className="input-dark resize-none" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Logo URL</label>
                     <input type="url" value={form.logo_url} onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-                           placeholder="https://..." className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                           placeholder="https://images.unsplash.com/..." className="input-dark" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image URL</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1">Cover Image URL</label>
                     <input type="url" value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })}
-                           placeholder="https://..." className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                           placeholder="https://images.unsplash.com/..." className="input-dark" />
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                        {SUGGESTED_COVERS.map((url) => (
+                            <button key={url} type="button" onClick={() => setForm({ ...form, cover_url: url })}
+                                    className="w-16 h-10 rounded-lg overflow-hidden border border-white/10 hover:border-purple-500/50 transition">
+                                <img src={url} alt="" className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                <button type="submit" disabled={saving}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
                     {saving ? 'Saving...' : 'Save Changes'}
                 </button>
             </form>
         </div>
 
         {isClubHead && (
-            <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+            <div className="glass-card rounded-xl border-red-200 p-6">
                 <h2 className="text-lg font-semibold text-red-700 mb-2">Danger Zone</h2>
                 <p className="text-sm text-gray-600 mb-4">
                     Deleting this club permanently removes all members, events, gallery, budget records, and chat history. This cannot be undone.
@@ -926,7 +931,7 @@ const ContactTab = ({ club }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border p-6 max-w-xl">
+        <div className="glass-card rounded-xl p-6 max-w-xl">
             <h2 className="text-lg font-semibold mb-2">Contact Club</h2>
             <p className="text-gray-600 text-sm mb-6">
                 Send a message to the club committee. They will be able to reply from their dashboard.
@@ -991,7 +996,7 @@ const FollowerMessagesSection = ({ clubId }) => {
     if (messages.length === 0) return null;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border p-6">
+        <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold mb-4">Follower Messages</h2>
             <div className="space-y-3">
                 {messages.slice(0, 5).map((msg) => (
@@ -1054,7 +1059,7 @@ const BudgetSection = ({ clubId }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border p-6">
+        <div className="glass-card rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Budget Transactions</h2>
                 <button onClick={() => setShowForm(!showForm)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700">

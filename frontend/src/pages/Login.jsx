@@ -5,19 +5,18 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { loginSchema } from '../validators/authValidators';
 import axiosInstance from '../api/axiosInstance';
 import { setToken, setUser } from '../utils/auth';
-import InputField from '../components/InputField';
-import Button from '../components/Button';
 import FormError from '../components/FormError';
+import { getHeroImage } from '../utils/images';
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(loginSchema)
     });
-  const [globalError, setGlobalError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const registered = location.state?.registered;
+    const [globalError, setGlobalError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const registered = location.state?.registered;
 
     const onSubmit = async (data) => {
         setIsLoading(true);
@@ -25,15 +24,9 @@ const Login = () => {
         try {
             const response = await axiosInstance.post('/user/login', data);
             const { token, role, user } = response.data;
-
             setToken(token);
             setUser(user);
-
-            if (role === 'ADMIN') {
-                navigate('/admin/dashboard');
-            } else {
-                navigate('/student/dashboard');
-            }
+            navigate(role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
         } catch (error) {
             setGlobalError(error.response?.data?.error || 'Login failed. Please try again.');
         } finally {
@@ -42,52 +35,60 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div className="max-w-md w-full bg-white rounded-lg shadow p-8">
-                <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
-                    <p className="text-sm text-gray-600 mt-2">Sign in to your account</p>
+        <div className="min-h-screen flex bg-[#07070f]">
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+                <img src={getHeroImage()} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-[#07070f]" />
+                <div className="absolute inset-0 bg-grid opacity-30" />
+                <div className="relative z-10 flex flex-col justify-center p-16">
+                    <p className="text-xs tracking-[0.3em] uppercase text-cyan-400 mb-4">SVNIT Surat</p>
+                    <h1 className="font-display text-5xl font-bold text-white leading-tight">
+                        Where <span className="text-gradient">Innovation</span><br />Meets Community
+                    </h1>
+                    <p className="mt-6 text-slate-400 max-w-md">
+                        Clubs, events, and campus collaboration — inspired by the spirit of techno-cultural fests like Mindbend.
+                    </p>
                 </div>
+            </div>
 
-        {registered && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-green-700 text-sm">Registration successful! Please sign in after an admin verifies your account.</p>
-          </div>
-        )}
-        {globalError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <FormError message={globalError} />
-          </div>
-        )}
+            <div className="flex-1 flex items-center justify-center p-6">
+                <div className="max-w-md w-full glass-card rounded-2xl p-8 glow-border">
+                    <div className="text-center mb-8">
+                        <h2 className="font-display text-2xl font-bold text-white">Welcome Back</h2>
+                        <p className="text-sm text-slate-400 mt-2">Sign in to StudHelp</p>
+                    </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <InputField
-                        id="identifier"
-                        label="Username or Email"
-                        placeholder="Enter your username or email"
-                        error={errors.identifier}
-                        {...register('identifier')}
-                    />
+                    {registered && (
+                        <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                            <p className="text-emerald-300 text-sm">Registration successful! Sign in after admin verification.</p>
+                        </div>
+                    )}
+                    {globalError && (
+                        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                            <FormError message={globalError} />
+                        </div>
+                    )}
 
-                    <InputField
-                        id="password"
-                        label="Password"
-                        type="password"
-                        placeholder="Enter your password"
-                        error={errors.password}
-                        {...register('password')}
-                    />
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">Username or Email</label>
+                            <input {...register('identifier')} placeholder="Enter username or email" className="input-dark" />
+                            {errors.identifier && <p className="text-red-400 text-xs mt-1">{errors.identifier.message}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                            <input type="password" {...register('password')} placeholder="Enter password" className="input-dark" />
+                            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+                        </div>
+                        <button type="submit" disabled={isLoading} className="btn-primary w-full disabled:opacity-50">
+                            {isLoading ? 'Signing in...' : 'Sign In'}
+                        </button>
+                    </form>
 
-                    <Button type="submit" isLoading={isLoading} className="w-full">
-                        Sign In
-                    </Button>
-                </form>
-
-                <div className="mt-6 text-center text-sm">
-                    <span className="text-gray-600">Don't have an account? </span>
-                    <Link to="/register" className="text-blue-600 hover:text-blue-500 font-medium">
-                        Register here
-                    </Link>
+                    <div className="mt-6 text-center text-sm">
+                        <span className="text-slate-500">Don&apos;t have an account? </span>
+                        <Link to="/register" className="text-purple-400 hover:text-purple-300 font-medium">Register</Link>
+                    </div>
                 </div>
             </div>
         </div>

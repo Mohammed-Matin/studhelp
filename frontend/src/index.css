@@ -1,1 +1,111 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-deep: #07070f;
+    --bg-card: #0f0f1a;
+    --bg-elevated: #161625;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --accent-cyan: #22d3ee;
+    --accent-purple: #a855f7;
+    --accent-magenta: #e879f9;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* Grid overlay — Mindbend-inspired */
+.bg-grid {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+}
+
+.glass-card {
+    background: rgba(15, 15, 26, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+}
+
+.glow-border {
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #22d3ee 0%, #a855f7 50%, #e879f9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.btn-primary {
+    @apply px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    color: white;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(124, 58, 237, 0.5);
+}
+
+.btn-ghost {
+    @apply px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+}
+.btn-ghost:hover {
+    border-color: rgba(34, 211, 238, 0.4);
+    color: var(--text-primary);
+}
+
+.input-dark {
+    @apply w-full px-4 py-2.5 rounded-lg text-sm outline-none transition;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+.input-dark::placeholder {
+    color: #64748b;
+}
+.input-dark:focus {
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+.tab-active {
+    border-bottom: 2px solid #a855f7;
+    color: #e879f9;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+    animation: fade-up 0.5s ease-out forwards;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+.animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+}
