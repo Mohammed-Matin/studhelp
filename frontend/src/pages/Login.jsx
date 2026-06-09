@@ -8,6 +8,7 @@ import { setToken, setUser } from '../utils/auth';
 import FormError from '../components/FormError';
 import ThemeToggle from '../components/ThemeToggle';
 import ThreeBackground from '../components/ThreeBackground';
+import TypewriterText from '../components/TypewriterText';
 import { getHeroImage } from '../utils/images';
 
 const Login = () => {
@@ -48,7 +49,9 @@ const Login = () => {
                 <div className="absolute inset-0 hero-overlay" />
                 <div className="absolute inset-0 bg-grid opacity-30" />
                 <div className="relative z-10 flex flex-col justify-center p-16">
-                    <p className="text-xs tracking-[0.3em] uppercase text-cyan-400 mb-4">SVNIT Surat</p>
+                    <p className="text-xs tracking-[0.3em] uppercase text-cyan-400 mb-4">
+                        <TypewriterText text="SVNIT SURAT" speed={60} delay={300} />
+                    </p>
                     <h1 className="font-display text-5xl font-bold text-theme leading-tight">
                         Where <span className="text-gradient">Innovation</span><br />Meets Community
                     </h1>

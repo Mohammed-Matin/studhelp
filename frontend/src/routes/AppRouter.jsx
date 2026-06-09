@@ -15,6 +15,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import NotificationBell from '../components/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import ThreeBackground from '../components/ThreeBackground';
+import Footer from '../components/Footer';
 import { isAdmin, clearToken } from '../utils/auth';
 
 const handleLogout = () => {
@@ -71,9 +72,7 @@ const AppLayout = ({ children }) => (
         <main className="flex-1 relative z-10">
             {children}
         </main>
-        <footer className="relative z-10 border-t border-theme-nav py-6 text-center text-xs text-theme-faint">
-            © {new Date().getFullYear()} StudHelp • SVNIT Surat • Built for campus innovators
-        </footer>
+        <Footer />
     </div>
 );
 

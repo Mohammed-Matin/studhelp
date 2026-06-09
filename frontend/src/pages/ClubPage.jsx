@@ -219,15 +219,15 @@ const JoinRequestModal = ({ onSubmit, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-                <h3 className="text-lg font-semibold mb-4">Request to Join Club</h3>
+            <div className="bg-theme-elevated rounded-xl shadow-xl max-w-md w-full p-6 border border-theme-nav">
+                <h3 className="text-lg font-semibold mb-4 text-theme">Request to Join Club</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Role</label>
+                        <label className="block text-sm font-medium text-theme-muted mb-1">Preferred Role</label>
                         <select
                             value={requestedRole}
                             onChange={(e) => setRequestedRole(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border border-theme-nav rounded-lg text-sm bg-theme-nav text-theme focus:ring-2 focus:ring-cyan-400 outline-none theme-select"
                         >
                             {CLUB_ROLES.filter((r) => r.value !== 'CORE_COMMITTEE').map((r) => (
                                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -235,13 +235,13 @@ const JoinRequestModal = ({ onSubmit, onClose }) => {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                        <label className="block text-sm font-medium text-theme-muted mb-1">Message</label>
                         <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Why do you want to join?"
                             rows={3}
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                            className="w-full px-3 py-2 border border-theme-nav rounded-lg text-sm bg-theme-nav text-theme focus:ring-2 focus:ring-cyan-400 outline-none resize-none theme-textarea"
                         />
                     </div>
                     <div className="flex gap-3 justify-end">

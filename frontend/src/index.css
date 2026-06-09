@@ -161,6 +161,18 @@ h1, h2, h3, .font-display {
     box-shadow: 0 0 0 3px rgba(168, 85, 237, 0.15);
 }
 
+.theme-select,
+.theme-textarea {
+    background: var(--bg-nav);
+    border: 1px solid var(--border-nav);
+    color: var(--text-primary);
+}
+
+.theme-select option {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
 .tab-active {
     border-bottom: 2px solid var(--accent-purple);
     color: var(--accent-magenta);
@@ -214,4 +226,43 @@ h1, h2, h3, .font-display {
 }
 .theme-transition {
     animation: theme-fade-in 0.3s ease-out;
+}
+
+.footer-nav-link {
+    color: var(--text-faint);
+    transition: color 0.2s ease, transform 0.2s ease;
+    letter-spacing: 0.35em;
+    font-size: 1rem;
+}
+
+.footer-nav-link:hover {
+    color: var(--accent-cyan);
+    transform: translateY(-1px);
+}
+
+.footer-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 1rem;
+    color: var(--text-faint);
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    background: rgba(255,255,255,0.03);
+}
+
+.footer-icon:hover {
+    color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+    background: rgba(34, 211, 238, 0.08);
+    transform: translateY(-2px);
+}
+
+.footer-icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    stroke: currentColor;
+    fill: none;
 }
