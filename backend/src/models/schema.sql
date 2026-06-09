@@ -7,6 +7,18 @@ CREATE SCHEMA IF NOT EXISTS student;
 -- 2. Custom ENUM Types
 -- ==========================================
 
+-- User Roles
+CREATE TYPE student.user_role AS ENUM ('STUDENT', 'ADMIN');
+
+-- User Verification Statuses
+CREATE TYPE student.user_status AS ENUM ('PENDING', 'VERIFIED', 'REJECTED');
+
+-- Degree Types
+CREATE TYPE student.degree_type AS ENUM ('BTECH', 'MTECH', 'PHD', 'MSC');
+
+-- Gender Types
+CREATE TYPE student.gender_type AS ENUM ('MALE', 'FEMALE', 'OTHER');
+
 -- Club Member Roles
 CREATE TYPE student.club_role AS ENUM (
     'CORE_COMMITTEE',
@@ -47,17 +59,45 @@ CREATE TYPE student.payment_status AS ENUM (
 -- 3. Tables
 -- ==========================================
 
+-- Users Table
+CREATE TABLE student.users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role student.user_role NOT NULL DEFAULT 'STUDENT',
+    status student.user_status NOT NULL DEFAULT 'PENDING',
+    full_name VARCHAR(150),
+    admission_no VARCHAR(20) UNIQUE,
+    branch VARCHAR(100),
+    semester INTEGER,
+    degree student.degree_type,
+    gender student.gender_type,
+    mobile_no VARCHAR(15) UNIQUE,
+    bonafide_url TEXT,
+    avatar_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_username ON student.users(username);
+CREATE INDEX idx_users_email ON student.users(email);
+
 -- Clubs Table
 CREATE TABLE student.Clubs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
+    logo_url TEXT,
+    cover_url TEXT,
+    member_count INTEGER DEFAULT 0,
+    follower_count INTEGER DEFAULT 0,
     budget_balance DECIMAL(12, 2) DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Club_Members Mapping Table
+-- Club Members Mapping Table
 CREATE TABLE student.Club_Members (
     user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
     club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
@@ -66,18 +106,104 @@ CREATE TABLE student.Club_Members (
     PRIMARY KEY (user_id, club_id)
 );
 
+-- Club Followers (separate from members)
+CREATE TABLE student.Club_Followers (
+    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    followed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, club_id)
+);
+
+-- Club Gallery Images
+CREATE TABLE student.Club_Gallery_Images (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    image_url TEXT NOT NULL,
+    caption VARCHAR(500),
+    uploaded_by UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Club Join Requests
+CREATE TABLE student.Club_Join_Requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    requested_role student.club_role DEFAULT 'CUSTOM',
+    message TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Follower Messages to Club Admins
+CREATE TABLE student.Follower_Messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sender_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    admin_reply TEXT,
+    replied_by UUID REFERENCES student.users(id) ON DELETE SET NULL,
+    replied_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Budget Transactions
+CREATE TABLE student.Budget_Transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('INCOME', 'EXPENSE')),
+    category VARCHAR(50) NOT NULL,
+    amount DECIMAL(12, 2) NOT NULL,
+    description TEXT,
+    reference_type VARCHAR(20) DEFAULT 'MANUAL',
+    reference_id UUID,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Club Donations
+CREATE TABLE student.Club_Donations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
+    donor_name VARCHAR(150),
+    amount DECIMAL(12, 2) NOT NULL,
+    message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Events Table
 CREATE TABLE student.Events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     club_id UUID NOT NULL REFERENCES student.Clubs(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    banner_url TEXT,
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
     end_time TIMESTAMP WITH TIME ZONE NOT NULL,
     status student.event_status NOT NULL DEFAULT 'UPCOMING',
+    participation_type VARCHAR(10) NOT NULL DEFAULT 'BOTH' CHECK (participation_type IN ('SOLO', 'TEAM', 'BOTH')),
+    max_teams INTEGER,
+    max_participants INTEGER,
     entry_fee DECIMAL(10, 2) DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Event Organizers (committee members organizing this event — CANNOT participate)
+CREATE TABLE student.Event_Organizers (
+    event_id UUID NOT NULL REFERENCES student.Events(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, user_id)
+);
+
+-- Event Registrations (solo participants)
+CREATE TABLE student.Event_Registrations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES student.Events(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES student.users(id) ON DELETE CASCADE,
+    registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (event_id, user_id)
 );
 
 -- Teams Table

@@ -35,9 +35,10 @@ const Register = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      navigate('/login');
+      navigate('/login', { state: { registered: true } });
     } catch (error) {
-      setGlobalError(error.response?.data?.message || 'Registration failed. Please try again.');
+      console.log('Registration error response:', error.response?.data);
+      setGlobalError(error.response?.data?.error || error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

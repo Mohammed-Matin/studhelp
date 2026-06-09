@@ -2,57 +2,135 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
-import ClubView from '../pages/ClubView';
-import EventView from '../pages/EventView';
+import AdminDashboard from '../pages/AdminDashboard';
+import ClubPage from '../pages/ClubPage';
+import EventPage from '../pages/EventPage';
+import CalendarView from '../pages/CalendarView';
 import ChatInterface from '../pages/ChatInterface';
+import ProfilePage from '../pages/ProfilePage';
+import PaymentPage from '../pages/PaymentPage';
+import VideoStreaming from '../pages/VideoStreaming';
+import ProtectedRoute from '../components/ProtectedRoute';
+import { isAdmin, clearToken } from '../utils/auth';
 
-// Layout wrapper component for authenticated views
+const handleLogout = () => {
+    clearToken();
+    window.location.href = '/login';
+};
+
 const AppLayout = ({ children }) => (
-  <div className="min-h-screen bg-gray-50 flex flex-col">
-    {/* Simple Navigation Bar */}
-    <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-      <div className="font-bold text-xl text-blue-600">College Event SaaS</div>
-      <div className="flex gap-4">
-        <Link to="/dashboard" className="text-gray-600 hover:text-blue-600">Dashboard</Link>
-        <Link to="/clubs/1" className="text-gray-600 hover:text-blue-600">Sample Club</Link>
-        <Link to="/events/1" className="text-gray-600 hover:text-blue-600">Sample Event</Link>
-        <Link to="/chat" className="text-gray-600 hover:text-blue-600">Chat</Link>
-        <Link to="/login" className="text-gray-600 hover:text-blue-600">Logout</Link>
-      </div>
-    </nav>
-
-    {/* Main Content Area */}
-    <main className="flex-1 p-4">
-      {children}
-    </main>
-  </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+        <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
+            <Link to="/dashboard" className="font-bold text-xl text-blue-600">StudHelp</Link>
+            <div className="flex gap-4 items-center">
+                <Link to="/dashboard" className="text-gray-600 hover:text-blue-600">Dashboard</Link>
+                <Link to="/calendar" className="text-gray-600 hover:text-blue-600">Calendar</Link>
+                <Link to="/profile" className="text-gray-600 hover:text-blue-600">Profile</Link>
+                {isAdmin() && (
+                    <Link to="/admin/dashboard" className="text-gray-600 hover:text-blue-600">Admin</Link>
+                )}
+                <Link to="/chat" className="text-gray-600 hover:text-blue-600">Chat</Link>
+                <Link to="/video?room=General" className="text-gray-600 hover:text-blue-600">Video</Link>
+                <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">
+                    Logout
+                </button>
+            </div>
+        </nav>
+        <main className="flex-1">
+            {children}
+        </main>
+    </div>
 );
 
 const AppRouter = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Redirect root to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><Dashboard /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/student/dashboard"
+                    element={<Navigate to="/dashboard" replace />}
+                />
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedRoute requireAdmin>
+                            <AppLayout><AdminDashboard /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/calendar"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><CalendarView /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/clubs/:id"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><ClubPage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/events/:id"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><EventPage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><ProfilePage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/chat"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><ChatInterface /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/payment"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout><PaymentPage /></AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/video"
+                    element={
+                        <ProtectedRoute>
+                            <VideoStreaming />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* App Routes (wrapped in layout) */}
-        <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-        <Route path="/student/dashboard" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/admin/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-
-        <Route path="/clubs/:id" element={<AppLayout><ClubView /></AppLayout>} />
-        <Route path="/events/:id" element={<AppLayout><EventView /></AppLayout>} />
-        <Route path="/chat" element={<AppLayout><ChatInterface /></AppLayout>} />
-
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+                <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+        </BrowserRouter>
+    );
 };
 
 export default AppRouter;

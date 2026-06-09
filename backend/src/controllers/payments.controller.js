@@ -1,34 +1,46 @@
 import Razorpay from 'razorpay';
 import pool from '../config/db.js';
 import crypto from 'crypto';
+import config from '../config/config.config.js';
 
-// Assuming config is properly set up with keys
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const razorpayInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'dummy_key_id',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_key_secret',
+    key_id: config.razorpayKeyId,
+    key_secret: config.razorpayKeySecret,
 });
 
+export const getRazorpayKey = async (req, res) => {
+    res.json({ key_id: config.razorpayKeyId });
+};
+
 export const createPayment = async (req, res) => {
-    const { user_id, event_id, amount } = req.body;
+    const { event_id, amount } = req.body;
+    const user_id = req.user.userId;
+
+    if (!UUID_REGEX.test(event_id)) {
+        return res.status(400).json({ error: 'Invalid event ID format' });
+    }
 
     try {
-        // Step 1: Create Order in Razorpay
+        const event = await pool.query('SELECT title FROM student.Events WHERE id = $1', [event_id]);
+        if (event.rows.length === 0) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
 
         const options = {
-            amount: amount * 100, // amount in smallest currency unit (paise)
+            amount: Math.round(amount * 100),
             currency: "INR",
-            receipt: `receipt_event_${event_id}_user_${user_id}`
+            receipt: `receipt_event_${event_id}_user_${user_id}_${Date.now()}`
         };
         const order = await razorpayInstance.orders.create(options);
 
-
-        // Step 2: Store Payment record in PostgreSQL (status: PENDING)
         await pool.query(
             'INSERT INTO student.Payments (user_id, event_id, razorpay_order_id, amount, status) VALUES ($1, $2, $3, $4, $5)',
             [user_id, event_id, order.id, amount, 'PENDING']
         );
 
-        res.status(201).json({ message: "Payment order created", order });
+        res.status(201).json({ message: "Payment order created", order, key_id: config.razorpayKeyId });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error creating payment order' });
@@ -36,9 +48,14 @@ export const createPayment = async (req, res) => {
 };
 
 export const getPaymentStatus = async (req, res) => {
-    const { id } = req.params; // This could be the payment record ID or order ID
+    const { id } = req.params;
     try {
-        const result = await pool.query('SELECT status FROM student.Payments WHERE id = $1 OR razorpay_order_id = $1', [id]);
+        const result = await pool.query(
+            UUID_REGEX.test(id)
+                ? 'SELECT status FROM student.Payments WHERE id = $1'
+                : 'SELECT status FROM student.Payments WHERE razorpay_order_id = $1',
+            [id]
+        );
         if (result.rows.length === 0) return res.status(404).json({ error: 'Payment not found' });
         res.status(200).json({ status: result.rows[0].status });
     } catch (error) {
@@ -53,7 +70,7 @@ export const verifyPaymentSignature = async (req, res) => {
 
     // Cryptographic verification logic goes here using crypto library and Razorpay Secret
     const text = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'dummy_key_secret')
+    const expectedSignature = crypto.createHmac('sha256', config.razorpayKeySecret)
                                     .update(text.toString())
                                     .digest('hex');
 

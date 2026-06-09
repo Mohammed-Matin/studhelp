@@ -6,44 +6,73 @@ import pool from './src/config/db.js';
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: {
-    origin: "*", // Configure this to restrict origins in production
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
 });
+
+app.set('io', io);
 
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+    console.log('User connected:', socket.id);
 
-  // Join a specific room (Club, Event, Team, or DM)
-  socket.on('join_room', (room) => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined room: ${room}`);
-  });
+    socket.on('join_dm', (userId) => {
+        socket.join(`dm_${userId}`);
+        console.log(`Socket ${socket.id} joined DM room: dm_${userId}`);
+    });
 
-  // Handle incoming messages
-  socket.on('send_message', async (data) => {
-    // data should contain { room, senderId, content, isAnonymous }
+    socket.on('join_group', ({ groupType, groupId }) => {
+        const room = `${groupType}_${groupId}`;
+        socket.join(room);
+        console.log(`Socket ${socket.id} joined group: ${room}`);
+    });
 
-    // Broadcast the message to everyone in the room
-    io.to(data.room).emit('receive_message', data);
+    socket.on('leave_group', ({ groupType, groupId }) => {
+        const room = `${groupType}_${groupId}`;
+        socket.leave(room);
+    });
 
-    // Save to the student.Messages table
-    try {
-        await pool.query(
-            'INSERT INTO student.Messages (sender_id, receiver_id, content, is_anonymous) VALUES ($1, $2, $3, $4)',
-            [data.senderId, data.room, data.content, data.isAnonymous || false] // Note: room logic would need refinement for strict UUIDs
-        );
-    } catch (error) {
-        console.error("Error saving message to DB:", error);
-    }
-  });
+    socket.on('join_all_club_rooms', async (clubId) => {
+        try {
+            socket.join(`CLUB_${clubId}`);
+            const groups = await pool.query(
+                'SELECT DISTINCT role_tag FROM student.Club_Members WHERE club_id = $1',
+                [clubId]
+            );
+            groups.rows.forEach(g => {
+                socket.join(`CLUB_${clubId}_${g.role_tag}`);
+            });
+        } catch (err) {
+            console.error('Error joining club rooms:', err);
+        }
+    });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
+    socket.on('send_message', (data) => {
+        socket.to(data.room).emit('receive_message', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
 });
 
-httpServer.listen(config.port || 3000, () => {
-  console.log(`Server is running on http://localhost:${config.port || 3000}`);
+const PORT = config.port;
+httpServer.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+const gracefulShutdown = async (signal) => {
+    console.log(`\n${signal} received. Shutting down gracefully...`);
+    io.close();
+    httpServer.close();
+    await pool.end();
+    process.exit(0);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
 });
