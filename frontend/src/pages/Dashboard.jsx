@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Users, PlusCircle, CalendarDays, MessageCircle } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
 import { isVerified, isAdmin, getUser } from '../utils/auth';
 import PageHero from '../components/PageHero';
 import ClubCard from '../components/ClubCard';
+import TypewriterText from '../components/TypewriterText';
 import { getHeroImage } from '../utils/images';
 
 const Dashboard = () => {
@@ -19,16 +21,20 @@ const Dashboard = () => {
     }, []);
 
     const quickLinks = [
-        { to: '/clubs', label: 'Browse Clubs', desc: 'Discover communities', color: 'from-cyan-500 to-blue-600' },
-        { to: '/clubs/new', label: 'Create Club', desc: 'Start something new', color: 'from-purple-500 to-violet-600' },
-        { to: '/calendar', label: 'Events Calendar', desc: 'Upcoming fests', color: 'from-fuchsia-500 to-pink-600' },
-        { to: '/chat', label: 'Messages', desc: 'Club & DM chat', color: 'from-emerald-500 to-teal-600' },
+        { to: '/clubs', label: 'Browse Clubs', desc: 'Discover communities', color: 'from-cyan-500 to-blue-600', icon: Users },
+        { to: '/clubs/new', label: 'Create Club', desc: 'Start something new', color: 'from-purple-500 to-violet-600', icon: PlusCircle },
+        { to: '/calendar', label: 'Events Calendar', desc: 'Upcoming fests', color: 'from-fuchsia-500 to-pink-600', icon: CalendarDays },
+        { to: '/chat', label: 'Messages', desc: 'Club & DM chat', color: 'from-emerald-500 to-teal-600', icon: MessageCircle },
     ];
 
     return (
         <div className="min-h-screen">
             <PageHero
-                label={`Welcome back, ${user?.full_name || user?.username}`}
+                label={
+                    <TypewriterText
+                        text={`Welcome back, ${user?.full_name || user?.username || 'there'}`}
+                    />
+                }
                 title={<>Your <span className="text-gradient">Command Center</span></>}
                 subtitle="Manage clubs, track events, and stay connected with your campus community."
                 image={getHeroImage()}
@@ -50,19 +56,24 @@ const Dashboard = () => {
                 )}
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {quickLinks.map((item) => (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className="group glass-card rounded-2xl p-5 hover:scale-[1.02] transition-all duration-300"
-                        >
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} mb-3 opacity-80 group-hover:opacity-100 transition`} />
-                            <h3 className="font-display font-semibold text-white group-hover:text-purple-300 transition">
-                                {item.label}
-                            </h3>
-                            <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
-                        </Link>
-                    ))}
+                    {quickLinks.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <Link
+                                key={item.to}
+                                to={item.to}
+                                className="group glass-card rounded-2xl p-5 hover:scale-[1.02] transition-all duration-300"
+                            >
+                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} mb-3 flex items-center justify-center opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300`}>
+                                    <Icon className="w-5 h-5 text-white keep-white" strokeWidth={2} />
+                                </div>
+                                <h3 className="font-display font-semibold text-white group-hover:text-purple-300 transition">
+                                    {item.label}
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 <section>

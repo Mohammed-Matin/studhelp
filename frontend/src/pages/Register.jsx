@@ -6,8 +6,9 @@ import { registerSchema } from '../validators/authValidators';
 import axiosInstance from '../api/axiosInstance';
 import InputField from '../components/InputField';
 import FilePicker from '../components/FilePicker';
-import Button from '../components/Button';
 import FormError from '../components/FormError';
+import ThemeToggle from '../components/ThemeToggle';
+import ThreeBackground from '../components/ThreeBackground';
 
 const Register = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -45,11 +46,15 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="max-w-4xl w-full bg-white rounded-lg shadow p-8">
+    <div className="min-h-screen flex items-center justify-center bg-theme p-4 relative">
+      <ThreeBackground intensity={0.7} />
+      <div className="absolute top-5 right-5 z-20">
+        <ThemeToggle />
+      </div>
+      <div className="max-w-4xl w-full glass-card rounded-2xl p-8 glow-border relative z-10 animate-fade-up">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Student Registration</h2>
-          <p className="text-sm text-gray-600 mt-2">Create your account to get started</p>
+          <h2 className="font-display text-2xl font-bold text-theme">Student Registration</h2>
+          <p className="text-sm text-theme-muted mt-2">Create your account to get started</p>
         </div>
 
         {globalError && (
@@ -86,12 +91,10 @@ const Register = () => {
             />
 
             <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="degree" className="text-sm font-medium text-gray-700">Degree</label>
+              <label htmlFor="degree" className="text-sm font-medium text-theme-muted">Degree</label>
               <select
                 id="degree"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.degree ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                className={`input-dark ${errors.degree ? 'border-red-500' : ''}`}
                 {...register('degree')}
               >
                 <option value="">Select Degree</option>
@@ -112,15 +115,13 @@ const Register = () => {
             />
 
             <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="semester" className="text-sm font-medium text-gray-700">Semester</label>
+              <label htmlFor="semester" className="text-sm font-medium text-theme-muted">Semester</label>
               <input
                 id="semester"
                 type="number"
                 min="1"
                 max="8"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.semester ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                className={`input-dark ${errors.semester ? 'border-red-500' : ''}`}
                 {...register('semester', { valueAsNumber: true })}
               />
               {errors.semester && <FormError message={errors.semester.message} />}
@@ -143,12 +144,10 @@ const Register = () => {
             />
 
             <div className="flex flex-col gap-1 w-full">
-              <label htmlFor="gender" className="text-sm font-medium text-gray-700">Gender</label>
+              <label htmlFor="gender" className="text-sm font-medium text-theme-muted">Gender</label>
               <select
                 id="gender"
-                className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.gender ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                className={`input-dark ${errors.gender ? 'border-red-500' : ''}`}
                 {...register('gender')}
               >
                 <option value="">Select Gender</option>
@@ -180,15 +179,15 @@ const Register = () => {
           </div>
 
           <div className="flex justify-center mt-8">
-            <Button type="submit" isLoading={isLoading} className="w-full md:w-1/2">
-              Register
-            </Button>
+            <button type="submit" disabled={isLoading} className="btn-primary w-full md:w-1/2 disabled:opacity-50">
+              {isLoading ? 'Registering...' : 'Register'}
+            </button>
           </div>
         </form>
 
         <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600">Already have an account? </span>
-          <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+          <span className="text-theme-muted">Already have an account? </span>
+          <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium">
             Sign in here
           </Link>
         </div>

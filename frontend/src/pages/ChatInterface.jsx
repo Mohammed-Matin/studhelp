@@ -186,36 +186,43 @@ const ChatInterface = () => {
 
   const isMe = (senderId) => senderId === user?.id;
 
+  const isActive = (id, type) =>
+    activeChat?.id === id && activeChat?.type === type;
+
+  const listItemClass = (active) =>
+    `w-full px-4 py-3 text-left border-b border-theme flex items-center gap-3 transition ${
+      active
+        ? "bg-purple-500/15 border-l-2 border-l-purple-500"
+        : "hover:bg-white/5 border-l-2 border-l-transparent"
+    }`;
+
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
+    <div className="flex h-[calc(100vh-4rem)]">
       {/* Left Sidebar */}
-      <div className="w-80 bg-white border-r flex flex-col">
-        {/* Search */}
-        <div className="p-3 border-b relative">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={() => setShowSearch(true)}
-              className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
+      <div className="w-80 glass-card border-r border-theme flex flex-col shrink-0">
+        <div className="p-3 border-b border-theme relative">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => setShowSearch(true)}
+            className="input-dark"
+          />
           {showSearch && searchResults.length > 0 && (
-            <div className="absolute top-full left-3 right-3 bg-white border rounded-lg shadow-lg mt-1 z-10">
+            <div className="absolute top-full left-3 right-3 glass-card glow-border rounded-lg mt-1 z-10 overflow-hidden">
               {searchResults.map((u) => (
                 <button
                   key={u.id}
                   onClick={() => startDM(u)}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-white/5 flex items-center gap-2 transition"
                 >
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold keep-white">
                     {(u.full_name || u.username)?.charAt(0)?.toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-medium">{u.full_name || u.username}</p>
-                    <p className="text-xs text-gray-500">@{u.username}</p>
+                    <p className="font-medium text-theme text-sm">{u.full_name || u.username}</p>
+                    <p className="text-xs text-theme-muted">@{u.username}</p>
                   </div>
                 </button>
               ))}
@@ -223,15 +230,14 @@ const ChatInterface = () => {
           )}
         </div>
 
-        {/* Club Chats */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-3 border-b bg-indigo-50">
-            <p className="text-xs font-semibold text-indigo-600 uppercase">
+          <div className="p-3 border-b border-theme bg-purple-500/10">
+            <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
               Club Chats
             </p>
           </div>
           {clubChats.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 text-sm border-b">
+            <div className="p-4 text-center text-theme-faint text-sm border-b border-theme">
               Join a club to access member chats
             </div>
           ) : (
@@ -239,13 +245,9 @@ const ChatInterface = () => {
               <button
                 key={club.id}
                 onClick={() => selectClubChat(club)}
-                className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b flex items-center gap-3 transition ${
-                  activeChat?.id === club.id && activeChat?.type === "CLUB"
-                    ? "bg-indigo-50"
-                    : ""
-                }`}
+                className={listItemClass(isActive(club.id, "CLUB"))}
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0 text-sm">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0 text-sm keep-white">
                   {club.logo_url ? (
                     <img src={club.logo_url} alt="" className="w-full h-full rounded-xl object-cover" />
                   ) : (
@@ -253,12 +255,12 @@ const ChatInterface = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{club.name}</p>
-                  <p className="text-xs text-gray-500 capitalize">
+                  <p className="font-medium text-sm truncate text-theme">{club.name}</p>
+                  <p className="text-xs text-theme-muted capitalize">
                     {club.user_role?.replace(/_/g, " ").toLowerCase()}
                   </p>
                   {club.last_message && (
-                    <p className="text-xs text-gray-400 truncate mt-0.5">
+                    <p className="text-xs text-theme-faint truncate mt-0.5">
                       {club.last_message}
                     </p>
                   )}
@@ -267,13 +269,13 @@ const ChatInterface = () => {
             ))
           )}
 
-          <div className="p-3 border-b bg-gray-50">
-            <p className="text-xs font-semibold text-gray-500 uppercase">
+          <div className="p-3 border-b border-theme bg-cyan-500/10">
+            <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
               Direct Messages
             </p>
           </div>
           {conversations.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 text-sm">
+            <div className="p-4 text-center text-theme-faint text-sm">
               No conversations yet. Search for someone to message.
             </div>
           ) : (
@@ -281,24 +283,20 @@ const ChatInterface = () => {
               <button
                 key={conv.user_id}
                 onClick={() => selectConversation(conv)}
-                className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b flex items-center gap-3 transition ${
-                  activeChat?.id === conv.user_id && activeChat?.type === "dm"
-                    ? "bg-blue-50"
-                    : ""
-                }`}
+                className={listItemClass(isActive(conv.user_id, "dm"))}
               >
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shrink-0 keep-white">
                   {(conv.full_name || conv.username)?.charAt(0)?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">
+                  <p className="font-medium text-sm truncate text-theme">
                     {conv.full_name || conv.username}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-theme-muted truncate">
                     @{conv.username}
                   </p>
                   {conv.last_message && (
-                    <p className="text-xs text-gray-400 truncate mt-0.5">
+                    <p className="text-xs text-theme-faint truncate mt-0.5">
                       {conv.last_message}
                     </p>
                   )}
@@ -310,17 +308,16 @@ const ChatInterface = () => {
       </div>
 
       {/* Main Chat */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {activeChat ? (
           <>
-            {/* Chat Header */}
-            <div className="bg-white border-b px-6 py-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold shrink-0">
+            <div className="glass-card border-b border-theme px-6 py-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold shrink-0 keep-white">
                 {activeChat.name?.charAt(0)?.toUpperCase()}
               </div>
               <div>
-                <p className="font-semibold">{activeChat.name}</p>
-                <p className="text-xs text-gray-500">
+                <p className="font-semibold text-theme">{activeChat.name}</p>
+                <p className="text-xs text-theme-muted">
                   {activeChat.type === "dm"
                     ? `@${activeChat.username}`
                     : activeChat.type === "CLUB"
@@ -330,12 +327,11 @@ const ChatInterface = () => {
               </div>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.length === 0 ? (
-                <div className="text-center text-gray-400 my-20">
+                <div className="text-center text-theme-muted my-20">
                   <p>No messages yet</p>
-                  <p className="text-sm mt-1">
+                  <p className="text-sm mt-1 text-theme-faint">
                     Send a message to start the conversation
                   </p>
                 </div>
@@ -351,33 +347,40 @@ const ChatInterface = () => {
                         minute: "2-digit",
                       })
                     : "";
+                  const mine = isMe(msg.sender_id);
                   return (
                     <div
                       key={msg.id || idx}
-                      className={`flex ${isMe(msg.sender_id) ? "justify-end" : "justify-start"}`}
+                      className={`flex ${mine ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] ${
-                          isMe(msg.sender_id)
-                            ? "bg-blue-600 text-white rounded-2xl rounded-br-sm"
-                            : "bg-white border shadow-sm rounded-2xl rounded-bl-sm"
-                        } px-4 py-2.5`}
+                        className={`max-w-[70%] px-4 py-2.5 ${
+                          mine
+                            ? "bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-2xl rounded-br-sm"
+                            : "glass-card border border-theme rounded-2xl rounded-bl-sm"
+                        }`}
                       >
-                        {!isMe(msg.sender_id) && activeChat.type !== "dm" && (
+                        {!mine && activeChat.type !== "dm" && (
                           <p
-                            className={`text-xs font-medium mb-1 ${isAnonymous ? "text-gray-400 italic" : "text-blue-600"}`}
+                            className={`text-xs font-medium mb-1 ${
+                              isAnonymous ? "text-theme-faint italic" : "text-cyan-400"
+                            }`}
                           >
                             {isAnonymous ? "🕵️ Anonymous" : displayName}
                           </p>
                         )}
-                        {isMe(msg.sender_id) && isAnonymous && (
-                          <p className="text-xs font-medium mb-1 text-blue-200 italic">
+                        {mine && isAnonymous && (
+                          <p className="text-xs font-medium mb-1 text-purple-200 italic">
                             Anonymous
                           </p>
                         )}
-                        <p className="text-sm">{msg.content}</p>
+                        <p className={`text-sm ${mine ? "keep-white" : "text-theme"}`}>
+                          {msg.content}
+                        </p>
                         <p
-                          className={`text-xs mt-1 ${isMe(msg.sender_id) ? "text-blue-200" : "text-gray-400"}`}
+                          className={`text-xs mt-1 ${
+                            mine ? "text-purple-200" : "text-theme-faint"
+                          }`}
                         >
                           {timeStr}
                         </p>
@@ -389,8 +392,7 @@ const ChatInterface = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <div className="bg-white border-t px-6 py-4">
+            <div className="glass-card border-t border-theme px-6 py-4">
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -398,25 +400,22 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  className="flex-1 px-4 py-2.5 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="input-dark flex-1"
                 />
                 <div className="flex items-center gap-2">
                   {activeChat.type !== "dm" && (
-                    <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-gray-500 hover:text-gray-700">
+                    <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-theme-muted hover:text-theme transition">
                       <input
                         type="checkbox"
                         checked={anonymous}
                         onChange={(e) => setAnonymous(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-gray-300 text-gray-500 focus:ring-gray-400 cursor-pointer"
+                        className="w-3.5 h-3.5 rounded border-theme bg-theme-elevated text-purple-500 focus:ring-purple-500/50 cursor-pointer"
                       />
                       <span className="hidden sm:inline">Anonymous</span>
                       <span className="sm:hidden">🕵️</span>
                     </label>
                   )}
-                  <button
-                    onClick={handleSend}
-                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition shadow-sm"
-                  >
+                  <button onClick={handleSend} className="btn-primary px-6 py-2.5 text-sm">
                     Send
                   </button>
                 </div>
@@ -424,11 +423,11 @@ const ChatInterface = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
-            <div className="text-center">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center animate-fade-up">
               <p className="text-5xl mb-4">💬</p>
-              <p className="text-lg">Select a conversation</p>
-              <p className="text-sm mt-1">
+              <p className="text-lg text-theme">Select a conversation</p>
+              <p className="text-sm mt-1 text-theme-muted">
                 Open a club chat or search for someone to message
               </p>
             </div>

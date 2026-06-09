@@ -13,6 +13,8 @@ import ChatInterface from '../pages/ChatInterface';
 import ProfilePage from '../pages/ProfilePage';
 import ProtectedRoute from '../components/ProtectedRoute';
 import NotificationBell from '../components/NotificationBell';
+import ThemeToggle from '../components/ThemeToggle';
+import ThreeBackground from '../components/ThreeBackground';
 import { isAdmin, clearToken } from '../utils/auth';
 
 const handleLogout = () => {
@@ -28,8 +30,8 @@ const NavLink = ({ to, children }) => {
             to={to}
             className={`text-sm font-medium transition px-3 py-1.5 rounded-lg ${
                 active
-                    ? 'text-white bg-white/10'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    ? 'text-theme bg-white/10'
+                    : 'text-theme-muted hover:text-theme hover:bg-white/5'
             }`}
         >
             {children}
@@ -38,12 +40,13 @@ const NavLink = ({ to, children }) => {
 };
 
 const AppLayout = ({ children }) => (
-    <div className="min-h-screen flex flex-col bg-[#07070f]">
-        <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#07070f]/80 backdrop-blur-xl">
+    <div className="min-h-screen flex flex-col bg-theme relative">
+        <ThreeBackground intensity={0.85} />
+        <nav className="sticky top-0 z-50 border-b border-theme-nav bg-theme-nav backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <Link to="/dashboard" className="font-display font-bold text-xl tracking-tight">
                     <span className="text-gradient">Stud</span>
-                    <span className="text-white">Help</span>
+                    <span className="text-theme">Help</span>
                 </Link>
                 <div className="flex gap-1 items-center">
                     <NavLink to="/dashboard">Home</NavLink>
@@ -52,7 +55,8 @@ const AppLayout = ({ children }) => (
                     <NavLink to="/chat">Chat</NavLink>
                     <NavLink to="/profile">Profile</NavLink>
                     {isAdmin() && <NavLink to="/admin/dashboard">Admin</NavLink>}
-                    <div className="ml-2 pl-2 border-l border-white/10">
+                    <div className="ml-2 pl-2 border-l border-theme flex items-center gap-2">
+                        <ThemeToggle />
                         <NotificationBell />
                     </div>
                     <button
@@ -64,10 +68,10 @@ const AppLayout = ({ children }) => (
                 </div>
             </div>
         </nav>
-        <main className="flex-1">
+        <main className="flex-1 relative z-10">
             {children}
         </main>
-        <footer className="border-t border-white/5 py-6 text-center text-xs text-slate-600">
+        <footer className="relative z-10 border-t border-theme-nav py-6 text-center text-xs text-theme-faint">
             © {new Date().getFullYear()} StudHelp • SVNIT Surat • Built for campus innovators
         </footer>
     </div>

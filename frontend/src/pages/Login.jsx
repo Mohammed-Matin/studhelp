@@ -6,6 +6,8 @@ import { loginSchema } from '../validators/authValidators';
 import axiosInstance from '../api/axiosInstance';
 import { setToken, setUser } from '../utils/auth';
 import FormError from '../components/FormError';
+import ThemeToggle from '../components/ThemeToggle';
+import ThreeBackground from '../components/ThreeBackground';
 import { getHeroImage } from '../utils/images';
 
 const Login = () => {
@@ -35,27 +37,32 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-[#07070f]">
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div className="min-h-screen flex bg-theme relative">
+            <ThreeBackground intensity={1} />
+            <div className="absolute top-5 right-5 z-20">
+                <ThemeToggle />
+            </div>
+
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden z-10">
                 <img src={getHeroImage()} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-[#07070f]" />
+                <div className="absolute inset-0 hero-overlay" />
                 <div className="absolute inset-0 bg-grid opacity-30" />
                 <div className="relative z-10 flex flex-col justify-center p-16">
                     <p className="text-xs tracking-[0.3em] uppercase text-cyan-400 mb-4">SVNIT Surat</p>
-                    <h1 className="font-display text-5xl font-bold text-white leading-tight">
+                    <h1 className="font-display text-5xl font-bold text-theme leading-tight">
                         Where <span className="text-gradient">Innovation</span><br />Meets Community
                     </h1>
-                    <p className="mt-6 text-slate-400 max-w-md">
+                    <p className="mt-6 text-theme-muted max-w-md">
                         Clubs, events, and campus collaboration — inspired by the spirit of techno-cultural fests like Mindbend.
                     </p>
                 </div>
             </div>
 
-            <div className="flex-1 flex items-center justify-center p-6">
-                <div className="max-w-md w-full glass-card rounded-2xl p-8 glow-border">
+            <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+                <div className="max-w-md w-full glass-card rounded-2xl p-8 glow-border animate-fade-up">
                     <div className="text-center mb-8">
-                        <h2 className="font-display text-2xl font-bold text-white">Welcome Back</h2>
-                        <p className="text-sm text-slate-400 mt-2">Sign in to StudHelp</p>
+                        <h2 className="font-display text-2xl font-bold text-theme">Welcome Back</h2>
+                        <p className="text-sm text-theme-muted mt-2">Sign in to StudHelp</p>
                     </div>
 
                     {registered && (
@@ -71,12 +78,12 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Username or Email</label>
+                            <label className="block text-sm font-medium text-theme-muted mb-1">Username or Email</label>
                             <input {...register('identifier')} placeholder="Enter username or email" className="input-dark" />
                             {errors.identifier && <p className="text-red-400 text-xs mt-1">{errors.identifier.message}</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                            <label className="block text-sm font-medium text-theme-muted mb-1">Password</label>
                             <input type="password" {...register('password')} placeholder="Enter password" className="input-dark" />
                             {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
                         </div>

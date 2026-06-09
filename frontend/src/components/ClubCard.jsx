@@ -19,7 +19,7 @@ const ClubCard = ({ club, badge, badgeColor = 'purple' }) => {
                     alt=""
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f1a] via-[#0f0f1a]/40 to-transparent" />
+                <div className="absolute inset-0 card-image-overlay" />
                 {badge && (
                     <span className={`absolute top-3 right-3 px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeStyles[badgeColor]}`}>
                         {badge}
@@ -31,7 +31,7 @@ const ClubCard = ({ club, badge, badgeColor = 'purple' }) => {
                     <img src={getClubLogo(club)} alt="" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0 pt-1">
-                    <h3 className="font-display font-semibold text-white group-hover:text-purple-300 transition truncate">
+                    <h3 className="font-display font-semibold text-theme group-hover:text-purple-400 transition truncate">
                         {club.name}
                     </h3>
                     <p className="text-xs text-slate-400 line-clamp-2 mt-1">
