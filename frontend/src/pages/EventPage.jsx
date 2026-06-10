@@ -141,12 +141,12 @@ const EventPage = () => {
             {/* Banner */}
             <div className="relative h-56 md:h-80 overflow-hidden">
                 <img src={getEventBanner(event)} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07070f] via-[#07070f]/60 to-purple-900/20" />
+                <div className="absolute inset-0 bg-linear-to-t from-[#07070f] via-[#07070f]/60 to-purple-900/20" />
                 <div className="absolute inset-0 bg-grid opacity-20" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <div className="max-w-6xl mx-auto">
-                        <Link to={`/clubs/${event.club_id}`} className="text-cyan-400 hover:text-cyan-300 text-sm mb-2 block">
-                            ← {event.club_name}
+                        <Link to={`/clubs/${event.club_id}`} className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm transition mb-4">
+                            <span>←</span> Back to {event.club_name}
                         </Link>
                         <p className="text-xs tracking-[0.2em] uppercase text-purple-300 mb-2">Campus Event</p>
                         <div className="flex items-center gap-3 flex-wrap">
@@ -164,9 +164,9 @@ const EventPage = () => {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Clash Warning */}
                     {event.clashes?.length > 0 && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                            <p className="text-red-700 font-medium text-sm">⚠ Time Clash Detected</p>
-                            <p className="text-red-600 text-sm mt-1">
+                        <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4">
+                            <p className="text-rose-400 font-medium text-sm">⚠ Time Clash Detected</p>
+                            <p className="text-rose-300 text-sm mt-1">
                                 This event overlaps with: {event.clashes.map(c => c.title).join(', ')}
                             </p>
                         </div>
@@ -183,12 +183,12 @@ const EventPage = () => {
                         <h2 className="text-lg font-display font-semibold text-white mb-4">Date & Time</h2>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                                <p className="text-gray-500">Start</p>
-                                <p className="font-medium">{new Date(event.start_time).toLocaleString()}</p>
+                                <p className="text-theme-muted">Start</p>
+                                <p className="font-medium text-theme">{new Date(event.start_time).toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-gray-500">End</p>
-                                <p className="font-medium">{new Date(event.end_time).toLocaleString()}</p>
+                                <p className="text-theme-muted">End</p>
+                                <p className="font-medium text-theme">{new Date(event.end_time).toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
@@ -206,14 +206,14 @@ const EventPage = () => {
                         </div>
 
                         {showTeamForm && (
-                            <form onSubmit={handleCreateTeam} className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+                            <form onSubmit={handleCreateTeam} className="bg-(--input-bg) border border-theme rounded-lg p-4 mb-4 space-y-3">
                                 <input type="text" placeholder="Team name" value={teamName}
                                        onChange={(e) => setTeamName(e.target.value)}
-                                       className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required />
+                                       className="input-dark w-full" required />
                                 <div className="flex gap-2 justify-end">
                                     <button type="button" onClick={() => setShowTeamForm(false)}
-                                            className="px-3 py-1.5 text-slate-400 text-sm">Cancel</button>
-                                    <button type="submit" className="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                                            className="px-3 py-1.5 text-theme-muted hover:text-theme text-sm transition">Cancel</button>
+                                    <button type="submit" className="btn-primary px-4! py-1.5! text-sm!">
                                         Create
                                     </button>
                                 </div>
@@ -225,21 +225,21 @@ const EventPage = () => {
                                 {event.teams.map((team) => {
                                     const isLeader = team.leader_id === user?.id;
                                     return (
-                                        <div key={team.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                                        <div key={team.id} className="flex items-center justify-between bg-theme-elevated border border-theme rounded-lg p-3">
                                             <div>
-                                                <p className="font-medium text-sm">{team.team_name}</p>
-                                                <p className="text-xs text-gray-500">By @{team.leader_name} · {team.member_count} members</p>
+                                                <p className="font-medium text-sm text-theme">{team.team_name}</p>
+                                                <p className="text-xs text-theme-muted">By @{team.leader_name} · {team.member_count} members</p>
                                             </div>
                                             <div className="flex gap-2">
                                                 {!event.isRegistered && (
                                                     <button onClick={() => handleJoinTeam(team.id)}
-                                                            className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
+                                                            className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs rounded hover:bg-emerald-500/30 transition">
                                                         Join
                                                     </button>
                                                 )}
                                                 {(canManage || isLeader) && (
                                                     <button onClick={() => handleDeleteTeam(team.id)}
-                                                            className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                            className="px-3 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs rounded hover:bg-rose-500/30 transition">
                                                         Delete
                                                     </button>
                                                 )}
@@ -249,7 +249,7 @@ const EventPage = () => {
                                 })}
                             </div>
                         ) : (
-                            <p className="text-gray-400 text-sm text-center py-4">No teams yet</p>
+                            <p className="text-theme-muted text-sm text-center py-4">No teams yet</p>
                         )}
                     </div>
 
@@ -259,7 +259,7 @@ const EventPage = () => {
                             <h2 className="text-lg font-display font-semibold text-white mb-4">Organizing Team</h2>
                             <div className="flex flex-wrap gap-2">
                                 {event.organizers.map((org) => (
-                                    <span key={org.user_id} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                                    <span key={org.user_id} className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-full text-sm">
                                         {org.full_name || org.username}
                                     </span>
                                 ))}
@@ -279,11 +279,11 @@ const EventPage = () => {
                         </div>
 
                         {isOrganizer ? (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-700">
+                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-300">
                                 You are an organizer — cannot participate
                             </div>
                         ) : event.isRegistered ? (
-                            <button onClick={handleUnregister} className="w-full px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">
+                            <button onClick={handleUnregister} className="w-full px-4 py-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-lg text-sm font-medium hover:bg-rose-500/30 transition">
                                 Unregister
                             </button>
                         ) : (
@@ -291,7 +291,7 @@ const EventPage = () => {
                                 <button
                                     onClick={handleRegister}
                                     disabled={event.status === 'PAST' || event.status === 'CANCELLED'}
-                                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    className="btn-primary w-full px-4 py-2 text-sm disabled:opacity-50"
                                 >
                                     {event.status === 'UPCOMING' || event.status === 'LIVE' ? 'Register Now' : 'Registration Closed'}
                                 </button>
@@ -307,7 +307,7 @@ const EventPage = () => {
                                 {event.status === 'UPCOMING' && (
                                     <button
                                         onClick={() => handleStatusChange('LIVE')}
-                                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+                                        className="w-full px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-sm font-medium hover:bg-emerald-500/30 transition"
                                     >
                                         Mark as Live
                                     </button>
@@ -315,7 +315,7 @@ const EventPage = () => {
                                 {event.status === 'LIVE' && (
                                     <button
                                         onClick={() => handleStatusChange('PAST')}
-                                        className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700"
+                                        className="w-full px-4 py-2 bg-slate-500/20 border border-slate-500/30 text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-500/30 transition"
                                     >
                                         Mark as Ended
                                     </button>
@@ -323,19 +323,19 @@ const EventPage = () => {
                                 {(event.status === 'UPCOMING' || event.status === 'POSTPONED') && (
                                     <button
                                         onClick={handleCancel}
-                                        className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700"
+                                        className="w-full px-4 py-2 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg text-sm font-medium hover:bg-amber-500/30 transition"
                                     >
                                         Cancel Event
                                     </button>
                                 )}
                                 <button
                                     onClick={handleDeleteEvent}
-                                    className="w-full px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 mt-2"
+                                    className="w-full px-4 py-2 bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-lg text-sm font-medium hover:bg-rose-500/30 transition mt-2"
                                 >
                                     Delete Event Permanently
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-400 mt-3">
+                            <p className="text-xs text-theme-muted mt-3">
                                 Cancel keeps the event visible as cancelled. Delete removes it completely.
                             </p>
                         </div>
@@ -345,7 +345,12 @@ const EventPage = () => {
                     <div className="glass-card rounded-xl p-6 text-sm">
                         <h3 className="font-semibold mb-3">Event Info</h3>
                         <div className="space-y-2 text-slate-400">
-                            <p>Club: <Link to={`/clubs/${event.club_id}`} className="text-blue-600 hover:underline">{event.club_name}</Link></p>
+                            <p className="flex items-center gap-2">
+                                Club: 
+                                <Link to={`/clubs/${event.club_id}`} className="bg-purple-500/10 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-md hover:bg-purple-500/20 transition text-xs font-medium inline-flex items-center">
+                                    {event.club_name}
+                                </Link>
+                            </p>
                             <p>Created: {new Date(event.created_at).toLocaleDateString()}</p>
                             <p>Organizers: {event.organizers?.length || 0}</p>
                         </div>

@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import UserSearchInput from '../components/UserSearchInput';
 import ClubChatPanel from '../components/ClubChatPanel';
+import CustomSelect from '../components/CustomSelect';
+import NumberInput from '../components/NumberInput';
 import {
     CLUB_ROLES,
     formatRole,
@@ -224,15 +226,12 @@ const JoinRequestModal = ({ onSubmit, onClose }) => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-theme-muted mb-1">Preferred Role</label>
-                        <select
+                        <CustomSelect
                             value={requestedRole}
                             onChange={(e) => setRequestedRole(e.target.value)}
-                            className="w-full px-3 py-2 border border-theme-nav rounded-lg text-sm bg-theme-nav text-theme focus:ring-2 focus:ring-cyan-400 outline-none theme-select"
-                        >
-                            {CLUB_ROLES.filter((r) => r.value !== 'CORE_COMMITTEE').map((r) => (
-                                <option key={r.value} value={r.value}>{r.label}</option>
-                            ))}
-                        </select>
+                            options={CLUB_ROLES.filter(r => r.value !== 'CORE_COMMITTEE')}
+                            className="w-full bg-theme-nav"
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-theme-muted mb-1">Message</label>
@@ -303,23 +302,23 @@ const GalleryTab = ({ club, canUpload }) => {
     };
 
     if (images.length === 0 && !canUpload) {
-        return <div className="text-center text-gray-400 py-12">No gallery images yet</div>;
+        return <div className="text-center text-theme-muted py-12">No gallery images yet</div>;
     }
 
     return (
         <div>
             {canUpload && (
-                <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Add Photo</label>
+                <div className="glass-card rounded-xl p-4 mb-6 glow-border">
+                    <label className="block text-sm font-medium text-theme-muted mb-2">Add Photo</label>
                     <div className="flex gap-3 items-start">
                         <input
                             type="text"
                             placeholder="Caption (optional)"
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
-                            className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="flex-1 input-dark"
                         />
-                        <label className={`px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-blue-700 transition ${uploading ? 'opacity-50' : ''}`}>
+                        <label className={`btn-primary px-4 py-2 text-sm cursor-pointer ${uploading ? 'opacity-50' : ''}`}>
                             {uploading ? 'Uploading...' : 'Choose'}
                             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
                         </label>
@@ -327,11 +326,11 @@ const GalleryTab = ({ club, canUpload }) => {
                 </div>
             )}
             {images.length === 0 && canUpload ? (
-                <div className="text-center text-gray-400 py-12">Upload your first photo!</div>
+                <div className="text-center text-theme-muted py-12">Upload your first photo!</div>
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {images.map((img) => (
-                        <div key={img.id} className="group relative bg-white rounded-xl overflow-hidden shadow-sm border aspect-square">
+                        <div key={img.id} className="group relative glass-card rounded-xl overflow-hidden aspect-square">
                             <img src={img.image_url} alt={img.caption || ''} className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-end p-3">
                                 {img.caption && (
@@ -410,7 +409,7 @@ const MembersTab = ({ club, isClubHead, onUpdate }) => {
     };
 
     if (members.length === 0 && !isClubHead) {
-        return <div className="text-center text-gray-400 py-12">No members yet</div>;
+        return <div className="text-center text-theme-muted py-12">No members yet</div>;
     }
 
     const grouped = members.reduce((acc, m) => {
@@ -429,17 +428,17 @@ const MembersTab = ({ club, isClubHead, onUpdate }) => {
                     {showAddForm ? (
                         <form onSubmit={handleAddMember} className="space-y-3">
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Search User</label>
+                                <label className="block text-xs font-medium text-theme-muted mb-1">Search User</label>
                                 {selectedUser ? (
-                                    <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                                    <div className="flex items-center gap-3 bg-[var(--input-bg)] border border-theme rounded-lg px-3 py-2">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                                             {(selectedUser.full_name || selectedUser.username)?.charAt(0)?.toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium">{selectedUser.full_name || selectedUser.username}</p>
-                                            <p className="text-xs text-gray-500">@{selectedUser.username}</p>
+                                            <p className="text-sm font-medium text-theme">{selectedUser.full_name || selectedUser.username}</p>
+                                            <p className="text-xs text-theme-muted">@{selectedUser.username}</p>
                                         </div>
-                                        <button type="button" onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-gray-600 text-sm">
+                                        <button type="button" onClick={() => setSelectedUser(null)} className="text-theme-muted hover:text-theme text-sm">
                                             Change
                                         </button>
                                     </div>
@@ -453,35 +452,32 @@ const MembersTab = ({ club, isClubHead, onUpdate }) => {
                             </div>
                             <div className="flex flex-wrap gap-3 items-end">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Role</label>
-                                    <select
+                                    <label className="block text-xs font-medium text-theme-muted mb-1">Role</label>
+                                    <CustomSelect
                                         value={roleTag}
                                         onChange={(e) => setRoleTag(e.target.value)}
-                                        className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                    >
-                                        {CLUB_ROLES.map((r) => (
-                                            <option key={r.value} value={r.value}>{r.label}</option>
-                                        ))}
-                                    </select>
+                                        options={CLUB_ROLES}
+                                        className="w-40"
+                                    />
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={!selectedUser || adding}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                                    className="btn-primary px-4 py-2 text-sm disabled:opacity-50"
                                 >
                                     {adding ? 'Adding...' : 'Add Member'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => { setShowAddForm(false); setSelectedUser(null); }}
-                                    className="px-4 py-2 text-gray-600 text-sm"
+                                    className="px-4 py-2 text-theme-muted hover:text-theme text-sm transition"
                                 >
                                     Cancel
                                 </button>
                             </div>
                         </form>
                     ) : (
-                        <button onClick={() => setShowAddForm(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                        <button onClick={() => setShowAddForm(true)} className="btn-primary px-4 py-2 text-sm">
                             + Add Member
                         </button>
                     )}
@@ -493,29 +489,28 @@ const MembersTab = ({ club, isClubHead, onUpdate }) => {
                 if (!roleMembers) return null;
                 return (
                     <div key={role}>
-                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                        <h3 className="text-sm font-semibold text-theme-muted uppercase tracking-wider mb-3">
                             {formatRole(role)}
-                            <span className="ml-2 text-gray-400 font-normal">({roleMembers.length})</span>
+                            <span className="ml-2 text-theme-faint font-normal">({roleMembers.length})</span>
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {roleMembers.map((m) => (
-                                <div key={m.user_id} className="flex items-center gap-3 bg-white rounded-lg p-3 shadow-sm border">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                <div key={m.user_id} className="flex items-center gap-3 glass-card rounded-lg p-3">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                                         {(m.full_name || m.username)?.charAt(0)?.toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-sm truncate">{m.full_name || m.username}</p>
-                                        <p className="text-xs text-gray-500">@{m.username}</p>
+                                        <p className="font-medium text-sm truncate text-theme">{m.full_name || m.username}</p>
+                                        <p className="text-xs text-theme-muted">@{m.username}</p>
                                         {isClubHead && m.role_tag !== 'CORE_COMMITTEE' && (
-                                            <select
-                                                value={m.role_tag}
-                                                onChange={(e) => handleRoleChange(m.user_id, e.target.value)}
-                                                className="mt-1 text-xs border rounded px-1 py-0.5"
-                                            >
-                                                {CLUB_ROLES.map((r) => (
-                                                    <option key={r.value} value={r.value}>{r.label}</option>
-                                                ))}
-                                            </select>
+                                            <div className="mt-1 w-36">
+                                                <CustomSelect
+                                                    value={m.role_tag}
+                                                    onChange={(e) => handleRoleChange(m.user_id, e.target.value)}
+                                                    options={CLUB_ROLES}
+                                                    className="py-1 px-2 text-xs"
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                     {isClubHead && m.role_tag !== 'CORE_COMMITTEE' && (
@@ -568,7 +563,7 @@ const EventsTab = ({ club, isManager }) => {
 
     const filtered = filter === 'ALL' ? events : events.filter((e) => e.status === filter);
 
-    if (loading) return <div className="text-center text-gray-400 py-12">Loading events...</div>;
+    if (loading) return <div className="text-center text-theme-muted py-12">Loading events...</div>;
 
     return (
         <div>
@@ -589,7 +584,7 @@ const EventsTab = ({ club, isManager }) => {
                 {isManager && (
                     <Link
                         to={`/clubs/${club.id}/events/new`}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                        className="btn-primary px-4 py-2 text-sm"
                     >
                         + Host Event
                     </Link>
@@ -597,11 +592,11 @@ const EventsTab = ({ club, isManager }) => {
             </div>
 
             {filtered.length === 0 ? (
-                <div className="text-center text-gray-400 py-12">
+                <div className="text-center text-theme-muted py-12">
                     {isManager ? (
                         <div>
                             <p className="mb-3">No events yet — host your first event!</p>
-                            <Link to={`/clubs/${club.id}/events/new`} className="text-blue-600 hover:underline font-medium">
+                            <Link to={`/clubs/${club.id}/events/new`} className="text-cyan-400 hover:text-cyan-300 transition hover:underline font-medium">
                                 Create Event
                             </Link>
                         </div>
@@ -644,19 +639,19 @@ const AboutTab = ({ club }) => {
     return (
         <div className="glass-card rounded-xl p-6 max-w-3xl">
             <h2 className="text-lg font-semibold mb-3">About</h2>
-            <p className="text-gray-600 leading-relaxed">{club.description || 'No description provided.'}</p>
+            <p className="text-theme-muted leading-relaxed">{club.description || 'No description provided.'}</p>
             <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                    <span className="text-gray-500">Created</span>
-                    <p className="font-medium">{new Date(club.created_at).toLocaleDateString()}</p>
+                    <span className="text-theme-faint">Created</span>
+                    <p className="font-medium text-theme">{new Date(club.created_at).toLocaleDateString()}</p>
                 </div>
                 <div>
-                    <span className="text-gray-500">Members</span>
-                    <p className="font-medium">{club.member_count || 0}</p>
+                    <span className="text-theme-faint">Members</span>
+                    <p className="font-medium text-theme">{club.member_count || 0}</p>
                 </div>
                 <div>
-                    <span className="text-gray-500">Followers</span>
-                    <p className="font-medium">{club.follower_count || 0}</p>
+                    <span className="text-theme-faint">Followers</span>
+                    <p className="font-medium text-theme">{club.follower_count || 0}</p>
                 </div>
             </div>
         </div>
@@ -694,8 +689,8 @@ const DashboardTab = ({ club, onUpdate }) => {
         }
     };
 
-    if (loading) return <div className="text-center text-gray-400 py-12">Loading dashboard...</div>;
-    if (!dashboard) return <div className="text-center text-gray-400 py-12">Failed to load dashboard</div>;
+    if (loading) return <div className="text-center text-theme-muted py-12">Loading dashboard...</div>;
+    if (!dashboard) return <div className="text-center text-theme-muted py-12">Failed to load dashboard</div>;
 
     return (
         <div className="space-y-6">
@@ -704,17 +699,17 @@ const DashboardTab = ({ club, onUpdate }) => {
                 <div className="glass-card rounded-xl p-6">
                     <h2 className="text-lg font-semibold mb-4">Budget Overview</h2>
                     <div className="grid grid-cols-3 gap-4">
-                        <div className="bg-blue-50 rounded-lg p-4 text-center">
-                            <p className="text-2xl font-bold text-blue-700">₹{Number(dashboard.budget.balance).toLocaleString()}</p>
-                            <p className="text-sm text-blue-600 mt-1">Balance</p>
+                        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-cyan-400">₹{Number(dashboard.budget.balance).toLocaleString()}</p>
+                            <p className="text-sm text-cyan-500 mt-1">Balance</p>
                         </div>
-                        <div className="bg-green-50 rounded-lg p-4 text-center">
-                            <p className="text-2xl font-bold text-green-700">+₹{Number(dashboard.budget.totalIncome).toLocaleString()}</p>
-                            <p className="text-sm text-green-600 mt-1">Income</p>
+                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-emerald-400">+₹{Number(dashboard.budget.totalIncome).toLocaleString()}</p>
+                            <p className="text-sm text-emerald-500 mt-1">Income</p>
                         </div>
-                        <div className="bg-red-50 rounded-lg p-4 text-center">
-                            <p className="text-2xl font-bold text-red-700">-₹{Number(dashboard.budget.totalExpense).toLocaleString()}</p>
-                            <p className="text-sm text-red-600 mt-1">Expenses</p>
+                        <div className="bg-rose-500/10 border border-rose-500/20 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-rose-400">-₹{Number(dashboard.budget.totalExpense).toLocaleString()}</p>
+                            <p className="text-sm text-rose-500 mt-1">Expenses</p>
                         </div>
                     </div>
                 </div>
@@ -725,7 +720,7 @@ const DashboardTab = ({ club, onUpdate }) => {
                 <h2 className="text-lg font-semibold mb-4">
                     Join Requests
                     {dashboard.pendingRequests > 0 && (
-                        <span className="ml-2 text-sm text-gray-500">({dashboard.pendingRequests} pending)</span>
+                        <span className="ml-2 text-sm text-theme-muted">({dashboard.pendingRequests} pending)</span>
                     )}
                 </h2>
                 <RequestsList clubId={club.id} onApprove={handleApprove} />
@@ -738,9 +733,9 @@ const DashboardTab = ({ club, onUpdate }) => {
                     <div className="space-y-2">
                         {dashboard.recentEvents.map((ev) => (
                             <Link key={ev.id} to={`/events/${ev.id}`}
-                                  className="flex items-center justify-between bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition">
+                                  className="flex items-center justify-between bg-theme-elevated border border-theme rounded-lg p-3 hover:bg-[var(--hover-bg)] transition text-theme">
                                 <span className="font-medium text-sm">{ev.title}</span>
-                                <span className="text-xs text-gray-500">{ev.status} · {new Date(ev.start_time).toLocaleDateString()}</span>
+                                <span className="text-xs text-theme-muted">{ev.status} · {new Date(ev.start_time).toLocaleDateString()}</span>
                             </Link>
                         ))}
                     </div>
@@ -756,12 +751,12 @@ const DashboardTab = ({ club, onUpdate }) => {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="glass-card rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-gray-800">{club.member_count || 0}</p>
-                    <p className="text-sm text-gray-500 mt-1">Members</p>
+                    <p className="text-2xl font-bold text-theme">{club.member_count || 0}</p>
+                    <p className="text-sm text-theme-muted mt-1">Members</p>
                 </div>
                 <div className="glass-card rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-gray-800">{club.follower_count || 0}</p>
-                    <p className="text-sm text-gray-500 mt-1">Followers</p>
+                    <p className="text-2xl font-bold text-theme">{club.follower_count || 0}</p>
+                    <p className="text-sm text-theme-muted mt-1">Followers</p>
                 </div>
             </div>
         </div>
@@ -875,14 +870,14 @@ const SettingsTab = ({ club, onUpdate, isClubHead }) => {
         </div>
 
         {isClubHead && (
-            <div className="glass-card rounded-xl border-red-200 p-6">
-                <h2 className="text-lg font-semibold text-red-700 mb-2">Danger Zone</h2>
-                <p className="text-sm text-gray-600 mb-4">
+            <div className="glass-card rounded-xl border-rose-500/30 p-6">
+                <h2 className="text-lg font-semibold text-rose-400 mb-2">Danger Zone</h2>
+                <p className="text-sm text-theme-muted mb-4">
                     Deleting this club permanently removes all members, events, gallery, budget records, and chat history. This cannot be undone.
                 </p>
                 <div className="space-y-3">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-theme-muted mb-1">
                             Type <strong>{club.name}</strong> to confirm
                         </label>
                         <input
@@ -890,14 +885,14 @@ const SettingsTab = ({ club, onUpdate, isClubHead }) => {
                             value={confirmName}
                             onChange={(e) => setConfirmName(e.target.value)}
                             placeholder={club.name}
-                            className="w-full px-3 py-2 border border-red-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                            className="input-dark border-rose-500/30 focus:border-rose-500 focus:ring-rose-500/20"
                         />
                     </div>
                     <button
                         type="button"
                         onClick={handleDeleteClub}
                         disabled={deleting || confirmName !== club.name}
-                        className="px-6 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-sm font-medium hover:bg-rose-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {deleting ? 'Deleting...' : 'Delete Club Permanently'}
                     </button>
@@ -933,13 +928,13 @@ const ContactTab = ({ club }) => {
     return (
         <div className="glass-card rounded-xl p-6 max-w-xl">
             <h2 className="text-lg font-semibold mb-2">Contact Club</h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <p className="text-theme-muted text-sm mb-6">
                 Send a message to the club committee. They will be able to reply from their dashboard.
             </p>
             {sent ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-700 text-sm">
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4 text-emerald-300 text-sm">
                     Message sent! The club committee will get back to you.
-                    <button onClick={() => setSent(false)} className="block mt-2 text-green-800 underline">
+                    <button onClick={() => setSent(false)} className="block mt-2 text-emerald-400 hover:text-emerald-300 underline">
                         Send another message
                     </button>
                 </div>
@@ -950,11 +945,11 @@ const ContactTab = ({ club }) => {
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Ask about membership, events, or collaborations..."
                         rows={4}
-                        className="w-full px-4 py-3 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                        className="input-dark resize-none w-full"
                         required
                     />
                     <button type="submit" disabled={sending}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                            className="btn-primary px-6 py-2 text-sm disabled:opacity-50">
                         {sending ? 'Sending...' : 'Send Message'}
                     </button>
                 </form>
@@ -1000,23 +995,23 @@ const FollowerMessagesSection = ({ clubId }) => {
             <h2 className="text-lg font-semibold mb-4">Follower Messages</h2>
             <div className="space-y-3">
                 {messages.slice(0, 5).map((msg) => (
-                    <div key={msg.id} className="bg-gray-50 rounded-lg p-4">
+                    <div key={msg.id} className="bg-[var(--input-bg)] border border-theme rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
-                            <p className="font-medium text-sm">{msg.full_name || msg.username}</p>
-                            <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleDateString()}</span>
+                            <p className="font-medium text-sm text-theme">{msg.full_name || msg.username}</p>
+                            <span className="text-xs text-theme-muted">{new Date(msg.created_at).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-sm text-gray-700">{msg.message}</p>
+                        <p className="text-sm text-theme-muted">{msg.message}</p>
                         {msg.admin_reply ? (
-                            <p className="text-sm text-blue-700 mt-2 bg-blue-50 rounded p-2">Reply: {msg.admin_reply}</p>
+                            <p className="text-sm text-cyan-300 mt-2 bg-cyan-500/10 border border-cyan-500/20 rounded p-2">Reply: {msg.admin_reply}</p>
                         ) : replying === msg.id ? (
                             <div className="mt-3 flex gap-2">
                                 <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)}
-                                       placeholder="Type your reply..." className="flex-1 px-3 py-1.5 border rounded-lg text-sm" />
-                                <button onClick={() => handleReply(msg.id)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium">Send</button>
-                                <button onClick={() => setReplying(null)} className="px-3 py-1.5 text-gray-600 text-xs">Cancel</button>
+                                       placeholder="Type your reply..." className="flex-1 input-dark !py-1.5" />
+                                <button onClick={() => handleReply(msg.id)} className="btn-primary !px-3 !py-1.5 !text-xs">Send</button>
+                                <button onClick={() => setReplying(null)} className="px-3 py-1.5 text-theme-muted hover:text-theme text-xs transition">Cancel</button>
                             </div>
                         ) : (
-                            <button onClick={() => setReplying(msg.id)} className="mt-2 text-blue-600 text-xs font-medium hover:underline">Reply</button>
+                            <button onClick={() => setReplying(msg.id)} className="mt-2 text-cyan-400 hover:text-cyan-300 text-xs font-medium hover:underline">Reply</button>
                         )}
                     </div>
                 ))}
@@ -1062,35 +1057,38 @@ const BudgetSection = ({ clubId }) => {
         <div className="glass-card rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Budget Transactions</h2>
-                <button onClick={() => setShowForm(!showForm)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700">
+                <button onClick={() => setShowForm(!showForm)} className="btn-primary !px-3 !py-1.5 !text-xs">
                     {showForm ? 'Cancel' : '+ Add Transaction'}
                 </button>
             </div>
             {showForm && (
-                <form onSubmit={handleAdd} className="bg-gray-50 rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                            className="px-3 py-2 border rounded-lg text-sm">
-                        <option value="INCOME">Income</option>
-                        <option value="EXPENSE">Expense</option>
-                    </select>
+                <form onSubmit={handleAdd} className="bg-[var(--input-bg)] border border-theme rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <CustomSelect
+                        value={form.type} 
+                        onChange={(e) => setForm({ ...form, type: e.target.value })}
+                        options={[
+                            { value: 'INCOME', label: 'Income' },
+                            { value: 'EXPENSE', label: 'Expense' }
+                        ]}
+                    />
                     <input type="text" placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                           className="px-3 py-2 border rounded-lg text-sm" required />
-                    <input type="number" placeholder="Amount" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                           className="px-3 py-2 border rounded-lg text-sm" min="0.01" step="0.01" required />
-                    <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">Add</button>
+                           className="input-dark !py-2" required />
+                    <NumberInput placeholder="Amount" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                           className="[&>input]:!bg-[var(--input-bg)] [&>input]:border-theme [&>input]:rounded-lg [&>input]:px-3 [&>input]:py-2 [&>input]:text-sm" min="0.01" step="0.01" required />
+                    <button type="submit" className="btn-primary !px-4 !py-2">Add</button>
                 </form>
             )}
             {transactions.length === 0 ? (
-                <p className="text-gray-400 text-sm">No transactions yet</p>
+                <p className="text-theme-muted text-sm">No transactions yet</p>
             ) : (
                 <div className="space-y-2">
                     {transactions.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-sm">
+                        <div key={tx.id} className="flex items-center justify-between bg-theme-elevated border border-theme rounded-lg p-3 text-sm">
                             <div>
-                                <span className="font-medium">{tx.category}</span>
-                                {tx.description && <span className="text-gray-500 ml-2">— {tx.description}</span>}
+                                <span className="font-medium text-theme">{tx.category}</span>
+                                {tx.description && <span className="text-theme-faint ml-2">— {tx.description}</span>}
                             </div>
-                            <span className={`font-semibold ${tx.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
+                            <span className={`font-semibold ${tx.type === 'INCOME' ? 'text-emerald-400' : 'text-rose-400'}`}>
                                 {tx.type === 'INCOME' ? '+' : '-'}₹{Number(tx.amount).toLocaleString()}
                             </span>
                         </div>
@@ -1120,20 +1118,20 @@ const RequestsList = ({ clubId, onApprove }) => {
         fetchRequests();
     }, [clubId, fetchRequests]);
 
-    if (loading) return <p className="text-gray-400 text-sm">Loading...</p>;
-    if (requests.length === 0) return <p className="text-gray-400 text-sm">No pending requests</p>;
+    if (loading) return <p className="text-theme-muted text-sm">Loading...</p>;
+    if (requests.length === 0) return <p className="text-theme-muted text-sm">No pending requests</p>;
 
     return (
         <div className="space-y-2">
             {requests.map((req) => (
-                <div key={req.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                <div key={req.id} className="flex items-center justify-between bg-[var(--input-bg)] border border-theme rounded-lg p-3">
                     <div>
-                        <p className="font-medium text-sm">{req.full_name} <span className="text-gray-500">@{req.username}</span></p>
-                        <p className="text-xs text-gray-500">{req.message || 'No message'} · {req.requested_role?.replace(/_/g, ' ')}</p>
+                        <p className="font-medium text-sm text-theme">{req.full_name} <span className="text-theme-faint">@{req.username}</span></p>
+                        <p className="text-xs text-theme-muted">{req.message || 'No message'} · {req.requested_role?.replace(/_/g, ' ')}</p>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={() => onApprove(req.id, 'APPROVED')} className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Accept</button>
-                        <button onClick={() => onApprove(req.id, 'REJECTED')} className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                        <button onClick={() => onApprove(req.id, 'APPROVED')} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs rounded hover:bg-emerald-500/30 transition">Accept</button>
+                        <button onClick={() => onApprove(req.id, 'REJECTED')} className="px-3 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs rounded hover:bg-rose-500/30 transition">Reject</button>
                     </div>
                 </div>
             ))}

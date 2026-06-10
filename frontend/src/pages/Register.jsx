@@ -9,6 +9,8 @@ import FilePicker from '../components/FilePicker';
 import FormError from '../components/FormError';
 import ThemeToggle from '../components/ThemeToggle';
 import ThreeBackground from '../components/ThreeBackground';
+import CustomSelect from '../components/CustomSelect';
+import NumberInput from '../components/NumberInput';
 
 const Register = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -92,17 +94,19 @@ const Register = () => {
 
             <div className="flex flex-col gap-1 w-full">
               <label htmlFor="degree" className="text-sm font-medium text-theme-muted">Degree</label>
-              <select
+              <CustomSelect
                 id="degree"
-                className={`input-dark ${errors.degree ? 'border-red-500' : ''}`}
+                placeholder="Select Degree"
+                options={[
+                  { value: '', label: 'Select Degree' },
+                  { value: 'BTECH', label: 'B.Tech' },
+                  { value: 'MTECH', label: 'M.Tech' },
+                  { value: 'PHD', label: 'Ph.D' },
+                  { value: 'MSC', label: 'M.Sc' }
+                ]}
+                className={errors.degree ? '!border-red-500 !bg-red-500/10' : ''}
                 {...register('degree')}
-              >
-                <option value="">Select Degree</option>
-                <option value="BTECH">B.Tech</option>
-                <option value="MTECH">M.Tech</option>
-                <option value="PHD">Ph.D</option>
-                <option value="MSC">M.Sc</option>
-              </select>
+              />
               {errors.degree && <FormError message={errors.degree.message} />}
             </div>
 
@@ -116,12 +120,11 @@ const Register = () => {
 
             <div className="flex flex-col gap-1 w-full">
               <label htmlFor="semester" className="text-sm font-medium text-theme-muted">Semester</label>
-              <input
+              <NumberInput
                 id="semester"
-                type="number"
                 min="1"
                 max="8"
-                className={`input-dark ${errors.semester ? 'border-red-500' : ''}`}
+                className={errors.semester ? '[&>input]:!border-red-500 [&>input]:!bg-red-500/10' : ''}
                 {...register('semester', { valueAsNumber: true })}
               />
               {errors.semester && <FormError message={errors.semester.message} />}
@@ -145,16 +148,18 @@ const Register = () => {
 
             <div className="flex flex-col gap-1 w-full">
               <label htmlFor="gender" className="text-sm font-medium text-theme-muted">Gender</label>
-              <select
+              <CustomSelect
                 id="gender"
-                className={`input-dark ${errors.gender ? 'border-red-500' : ''}`}
+                placeholder="Select Gender"
+                options={[
+                  { value: '', label: 'Select Gender' },
+                  { value: 'MALE', label: 'Male' },
+                  { value: 'FEMALE', label: 'Female' },
+                  { value: 'OTHER', label: 'Other' }
+                ]}
+                className={errors.gender ? '!border-red-500 !bg-red-500/10' : ''}
                 {...register('gender')}
-              >
-                <option value="">Select Gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
+              />
               {errors.gender && <FormError message={errors.gender.message} />}
             </div>
           </div>

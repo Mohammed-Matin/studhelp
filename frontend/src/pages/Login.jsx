@@ -6,6 +6,7 @@ import { loginSchema } from '../validators/authValidators';
 import axiosInstance from '../api/axiosInstance';
 import { setToken, setUser } from '../utils/auth';
 import FormError from '../components/FormError';
+import InputField from '../components/InputField';
 import ThemeToggle from '../components/ThemeToggle';
 import ThreeBackground from '../components/ThreeBackground';
 import TypewriterText from '../components/TypewriterText';
@@ -80,16 +81,21 @@ const Login = () => {
                     )}
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-theme-muted mb-1">Username or Email</label>
-                            <input {...register('identifier')} placeholder="Enter username or email" className="input-dark" />
-                            {errors.identifier && <p className="text-red-400 text-xs mt-1">{errors.identifier.message}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-theme-muted mb-1">Password</label>
-                            <input type="password" {...register('password')} placeholder="Enter password" className="input-dark" />
-                            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
-                        </div>
+                        <InputField
+                            id="identifier"
+                            label="Username or Email"
+                            placeholder="Enter username or email"
+                            error={errors.identifier}
+                            {...register('identifier')}
+                        />
+                        <InputField
+                            id="password"
+                            type="password"
+                            label="Password"
+                            placeholder="Enter password"
+                            error={errors.password}
+                            {...register('password')}
+                        />
                         <button type="submit" disabled={isLoading} className="btn-primary w-full disabled:opacity-50">
                             {isLoading ? 'Signing in...' : 'Sign In'}
                         </button>

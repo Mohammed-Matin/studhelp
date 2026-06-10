@@ -8,7 +8,7 @@ export const getNotifications = async (req, res) => {
     try {
         const notifications = (await pool.query(
             `SELECT * FROM student.Notifications
-             WHERE user_id = $1
+             WHERE user_id = $1 AND is_read = false
              ORDER BY created_at DESC
              LIMIT $2 OFFSET $3`,
             [req.user.userId, parseInt(limit), offset]

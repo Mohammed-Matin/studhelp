@@ -404,15 +404,21 @@ const ChatInterface = () => {
                 />
                 <div className="flex items-center gap-2">
                   {activeChat.type !== "dm" && (
-                    <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-theme-muted hover:text-theme transition">
-                      <input
-                        type="checkbox"
-                        checked={anonymous}
-                        onChange={(e) => setAnonymous(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded border-theme bg-theme-elevated text-purple-500 focus:ring-purple-500/50 cursor-pointer"
-                      />
-                      <span className="hidden sm:inline">Anonymous</span>
-                      <span className="sm:hidden">🕵️</span>
+                    <label className="flex items-center gap-2 cursor-pointer group select-none mr-2">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={anonymous}
+                          onChange={(e) => setAnonymous(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className={`w-9 h-5 rounded-full transition-colors duration-300 ${anonymous ? 'bg-purple-500 border border-purple-500' : 'bg-[var(--input-bg)] border border-[var(--border-subtle)] group-hover:border-purple-500/50'}`}></div>
+                        <div className={`absolute left-[3px] top-[3px] w-3.5 h-3.5 rounded-full bg-white transition-transform duration-300 ${anonymous ? 'translate-x-4 shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'translate-x-0 opacity-60'}`}></div>
+                      </div>
+                      <span className={`text-sm transition-colors ${anonymous ? 'text-purple-400 font-medium' : 'text-theme-muted group-hover:text-theme'}`}>
+                        <span className="hidden sm:inline">Anonymous</span>
+                        <span className="sm:hidden">🕵️</span>
+                      </span>
                     </label>
                   )}
                   <button onClick={handleSend} className="btn-primary px-6 py-2.5 text-sm">

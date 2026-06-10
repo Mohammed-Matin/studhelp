@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { getUser, setUser } from '../utils/auth';
+import CustomSelect from '../components/CustomSelect';
 
 const BRANCHES = [
     'Computer Engineering', 'Information Technology', 'Electronics Engineering',
@@ -23,10 +24,15 @@ const EditableField = ({ label, name, type = 'text', options, value, onChange })
         return (
             <div>
                 <label className="block text-xs font-medium text-theme-muted mb-1.5">{label}</label>
-                <select name={name} value={value} onChange={onChange} className="input-dark">
-                    <option value="">Select {label}</option>
-                    {options.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
+                <CustomSelect
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    options={[
+                        { value: '', label: `Select ${label}` },
+                        ...options.map(o => ({ value: o, label: o }))
+                    ]}
+                />
             </div>
         );
     }

@@ -78,12 +78,14 @@ const NotificationBell = () => {
         setOpen(!open);
     };
 
-    const handleMarkRead = async (id) => {
+    const handleMarkRead = async (id, e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         try {
             await axiosInstance.patch(`/notifications/${id}/read`);
-            setNotifications((prev) =>
-                prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-            );
+            setNotifications((prev) => prev.filter((n) => n.id !== id));
             setUnreadCount((c) => Math.max(0, c - 1));
         } catch (err) {
             console.error('Error marking notification read:', err);
@@ -93,7 +95,7 @@ const NotificationBell = () => {
     const handleMarkAllRead = async () => {
         try {
             await axiosInstance.patch('/notifications/read-all');
-            setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+            setNotifications([]);
             setUnreadCount(0);
         } catch (err) {
             console.error('Error marking all read:', err);
@@ -129,9 +131,9 @@ const NotificationBell = () => {
                         {unreadCount > 0 && (
                             <button
                                 onClick={handleMarkAllRead}
-                                className="text-xs text-cyan-400 hover:underline"
+                                className="text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors"
                             >
-                                Mark all read
+                                Mark all as read
                             </button>
                         )}
                     </div>
@@ -147,26 +149,29 @@ const NotificationBell = () => {
                                     key={n.id}
                                     to={n.link || '#'}
                                     onClick={() => handleNotificationClick(n)}
-                                    className={`block px-4 py-3 border-b border-white/5 hover:bg-white/5 transition ${
-                                        !n.is_read ? 'bg-purple-500/10' : ''
-                                    }`}
+                                    className="block px-4 py-3 border-b border-white/5 hover:bg-[var(--hover-bg)] transition bg-[var(--input-bg)]/50 group"
                                 >
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 relative">
                                         <span className="text-lg flex-shrink-0">
                                             {TYPE_ICONS[n.type] || '🔔'}
                                         </span>
-                                        <div className="min-w-0 flex-1">
-                                            <p className={`text-sm ${!n.is_read ? 'font-semibold' : 'font-medium'} text-white`}>
+                                        <div className="min-w-0 flex-1 pr-6">
+                                            <p className="text-sm font-semibold text-theme">
                                                 {n.title}
                                             </p>
-                                            <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
-                                            <p className="text-xs text-slate-500 mt-1">
+                                            <p className="text-xs text-theme-muted mt-0.5 line-clamp-2">{n.message}</p>
+                                            <p className="text-xs text-theme-faint mt-1">
                                                 {new Date(n.created_at).toLocaleString()}
                                             </p>
                                         </div>
-                                        {!n.is_read && (
-                                            <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1.5" />
-                                        )}
+                                        <button 
+                                            onClick={(e) => handleMarkRead(n.id, e)}
+                                            title="Mark as read"
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border border-purple-500/50 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-purple-500/20 transition-all text-purple-400 focus:opacity-100"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </button>
+                                        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-purple-500 rounded-full flex-shrink-0 group-hover:opacity-0 transition-opacity shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
                                     </div>
                                 </Link>
                             ))

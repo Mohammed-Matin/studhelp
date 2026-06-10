@@ -36,11 +36,12 @@ const FilePicker = forwardRef(({ label, error, id, accept, onChange, ...rest }, 
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <label htmlFor={id} className="text-sm font-medium text-gray-700">{label}</label>}
+      {label && <label htmlFor={id} className="text-sm font-medium text-theme-muted">{label}</label>}
       <div className="flex items-center gap-4">
-        <label className={`cursor-pointer px-4 py-2 border rounded-md focus-within:ring-2 ${
-          error ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 focus-within:ring-blue-500'
-        } bg-white hover:bg-gray-50 flex items-center justify-center text-sm text-gray-600`}>
+        <label className={`cursor-pointer px-4 py-2.5 rounded-lg border focus-within:ring-2 transition-all duration-200 flex items-center justify-center text-sm ${
+          error ? 'border-red-500 focus-within:ring-red-500/50 bg-red-500/10 text-red-500' 
+                : 'border-theme hover:border-purple-500/50 bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] text-theme focus-within:ring-purple-500/50'
+        }`}>
           Choose File
           <input
             id={id}
@@ -54,10 +55,10 @@ const FilePicker = forwardRef(({ label, error, id, accept, onChange, ...rest }, 
         </label>
 
         {preview && (
-          <img src={preview} alt="Preview" className="h-10 w-10 object-cover rounded-md border border-gray-200" />
+          <img src={preview} alt="Preview" className="h-10 w-10 object-cover rounded-md border border-theme" />
         )}
         {!preview && fileName && (
-          <span className="text-sm text-gray-600 truncate max-w-xs">{fileName}</span>
+          <span className="text-sm text-theme-muted truncate max-w-xs">{fileName}</span>
         )}
       </div>
       {error && <FormError message={error.message} />}
